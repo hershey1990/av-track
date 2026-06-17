@@ -1,0 +1,1 @@
+import{f as t,Z as i,o as a,_ as r,s as e}from"./schemas-93Wvc3ym.js";function m(n){return t(i,n)}const s=a({name:e().min(1,"El nombre es requerido"),start_date:e().min(1),end_date:e().min(1)}),u=a({full_name:e().min(1),type:r(["partime","fulltime"]),role:r(["user","admin"]),viatico:m().min(0),extra_rate:m().min(0)});export{s as p,u};
