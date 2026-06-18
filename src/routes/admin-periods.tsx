@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useUser } from '@/hooks/use-user'
 import { useProfile } from '@/hooks/use-profile'
 import { usePeriods, useUpdatePeriod } from '@/features/reports/hooks/use-periods'
@@ -5,14 +6,22 @@ import { PeriodForm } from '@/features/admin/components/period-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Lock, Unlock } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Lock, Unlock, Pencil } from 'lucide-react'
 import { formatDateFull } from '@/lib/timezone'
+import type { Period } from '@/types'
 
 export default function AdminPeriodsPage() {
   const { user } = useUser()
   const { data: profile, isLoading } = useProfile(user?.id)
   const { data: periods } = usePeriods()
   const updatePeriod = useUpdatePeriod()
+  const [editingPeriod, setEditingPeriod] = useState<Period | null>(null)
 
   if (isLoading) return <p className="text-center text-muted-foreground py-8">Cargando...</p>
   if (profile?.role !== 'admin') {
@@ -43,6 +52,9 @@ export default function AdminPeriodsPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={p.is_locked ? 'destructive' : 'secondary'}>{p.is_locked ? 'Bloqueado' : 'Activo'}</Badge>
+                <Button variant="outline" size="sm" onClick={() => setEditingPeriod(p)}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => toggleLock(p.id, p.is_locked)}>
                   {p.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                 </Button>
@@ -51,6 +63,23 @@ export default function AdminPeriodsPage() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Edit period dialog */}
+      <Dialog open={!!editingPeriod} onOpenChange={(open) => { if (!open) setEditingPeriod(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar período</DialogTitle>
+          </DialogHeader>
+          {editingPeriod && (
+            <PeriodForm
+              userId={user!.id}
+              period={editingPeriod}
+              onCancel={() => setEditingPeriod(null)}
+              onSuccess={() => setEditingPeriod(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
