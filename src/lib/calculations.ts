@@ -16,8 +16,9 @@ export function calcHours(startTime: string, endTime: string): number {
 
 export function calcExtraHours(hours: number, standardHours: number): number {
   const diffMinutes = Math.round((hours - standardHours) * 60)
-  if (diffMinutes <= 0) return 0
-  return Math.floor(diffMinutes / 15)
+  if (diffMinutes < 15) return 0
+  // Bloques de 30 min: el umbral de 15 min activa el primer bloque
+  return (Math.floor((diffMinutes - 15) / 30) + 1) * 0.5
 }
 
 export function calcViatico(hours: number): boolean {

@@ -69,35 +69,35 @@ describe('calcExtraHours', () => {
     expect(calcExtraHours(8.23, 8)).toBe(0)
   })
 
-  it('returns 1 for exactly 15 minutes extra', () => {
-    // part-time: 5h + 15min = 1 extra hour
-    expect(calcExtraHours(5.25, 5)).toBe(1)
-    // full-time: 8h + 15min = 1 extra hour
-    expect(calcExtraHours(8.25, 8)).toBe(1)
+  it('returns 0.5 for exactly 15 minutes extra', () => {
+    // part-time: 5h + 15min = 0.5 extra hour (primer bloque)
+    expect(calcExtraHours(5.25, 5)).toBe(0.5)
+    // full-time: 8h + 15min = 0.5 extra hour (primer bloque)
+    expect(calcExtraHours(8.25, 8)).toBe(0.5)
   })
 
-  it('returns 1 for 16 minutes extra (still 1 block)', () => {
-    expect(calcExtraHours(5.27, 5)).toBe(1)
+  it('returns 0.5 for 16 minutes extra (primer bloque)', () => {
+    expect(calcExtraHours(5.27, 5)).toBe(0.5)
   })
 
-  it('returns 2 for exactly 30 minutes extra', () => {
-    expect(calcExtraHours(5.5, 5)).toBe(2)
-    expect(calcExtraHours(8.5, 8)).toBe(2)
+  it('returns 0.5 for exactly 30 minutes extra (mismo bloque)', () => {
+    expect(calcExtraHours(5.5, 5)).toBe(0.5)
+    expect(calcExtraHours(8.5, 8)).toBe(0.5)
   })
 
-  it('returns 3 for 45 minutes extra', () => {
-    expect(calcExtraHours(5.75, 5)).toBe(3)
-    expect(calcExtraHours(8.75, 8)).toBe(3)
+  it('returns 1.0 for 45 minutes extra (segundo bloque)', () => {
+    expect(calcExtraHours(5.75, 5)).toBe(1.0)
+    expect(calcExtraHours(8.75, 8)).toBe(1.0)
   })
 
-  it('returns 4 for 1 hour extra (60 minutes)', () => {
-    expect(calcExtraHours(6, 5)).toBe(4)
-    expect(calcExtraHours(9, 8)).toBe(4)
+  it('returns 1.0 for 1 hour extra (60 min, mismo bloque)', () => {
+    expect(calcExtraHours(6, 5)).toBe(1.0)
+    expect(calcExtraHours(9, 8)).toBe(1.0)
   })
 
   it('handles large overtime values', () => {
-    // 2 hours extra = 120 minutes / 15 = 8 blocks
-    expect(calcExtraHours(7, 5)).toBe(8)
+    // 2 horas extra = 120 min = (120-15)/30 = 3 → +1 = 4 → ×0.5 = 2.0
+    expect(calcExtraHours(7, 5)).toBe(2.0)
   })
 })
 
@@ -141,22 +141,22 @@ describe('calcDay', () => {
     updated_at: '',
   }
 
-  it('calculates a part-time day with 1 extra hour', () => {
+  it('calculates a part-time day with 0.5 extra hour', () => {
     const result = calcDay(partimeEntry, 'partime', 180)
     expect(result.hours).toBeCloseTo(5.25, 2)
     expect(result.standard_hours).toBe(5)
-    expect(result.extra_hours).toBe(1) // 15 min extra → 1 block
+    expect(result.extra_hours).toBe(0.5) // 15 min extra → primer bloque (0.5h)
     expect(result.scheduled_end_time).toBe('13:00') // 08:00 + 5h
     expect(result.extra_time).toBe('0:15')
     expect(result.viatico).toBe(0)   // under 7h
     expect(result.viatico_amount).toBe(0)
   })
 
-  it('calculates a full-time day with 1 extra hour', () => {
+  it('calculates a full-time day with 1.5 extra hours', () => {
     const result = calcDay(fulltimeEntry, 'fulltime', 180)
     expect(result.hours).toBeCloseTo(9.25, 2)
     expect(result.standard_hours).toBe(8)
-    expect(result.extra_hours).toBe(5) // 1h15min = 75min / 15 = 5 blocks
+    expect(result.extra_hours).toBe(1.5) // 1h15min = 75min → tercer bloque (1.5h)
     expect(result.scheduled_end_time).toBe('16:00') // 08:00 + 8h
     expect(result.extra_time).toBe('1:15')
     expect(result.viatico).toBe(1)   // over 7h
@@ -200,8 +200,8 @@ describe('calcPeriodSummary', () => {
 
   it('aggregates multiple days correctly', () => {
     const entries = [
-      makeEntry('2025-06-16', '08:00', '13:15'), // part-time: 5.25h, 1 extra
-      makeEntry('2025-06-17', '08:00', '13:30'), // part-time: 5.5h, 2 extra
+      makeEntry('2025-06-16', '08:00', '13:15'), // part-time: 5.25h, 0.5 extra
+      makeEntry('2025-06-17', '08:00', '13:30'), // part-time: 5.5h, 0.5 extra
       makeEntry('2025-06-18', '08:00', '13:00'), // part-time: 5.0h, 0 extra
     ]
 
@@ -209,7 +209,7 @@ describe('calcPeriodSummary', () => {
 
     expect(result.days).toHaveLength(3)
     expect(result.total_hours).toBeCloseTo(15.75, 2)
-    expect(result.total_extra_hours).toBe(3) // 1 + 2 + 0
+    expect(result.total_extra_hours).toBeCloseTo(1.0, 2) // 0.5 + 0.5 + 0
     expect(result.total_viatico).toBe(0)     // none reached 7h
     expect(result.days_with_viatico).toBe(0)
   })
@@ -222,7 +222,7 @@ describe('calcPeriodSummary', () => {
 
     const result = calcPeriodSummary(entries, 'fulltime', 180)
 
-    // 9h → 8h standard + 1h extra = 4 blocks, viatico
+    // 9h → 8h standard + 1h extra = segundo bloque (1.0h), viatico
     // 8h → 0 extra, viatico (8 >= 7)
     expect(result.days).toHaveLength(2)
     expect(result.total_viatico).toBe(360) // 180 * 2
