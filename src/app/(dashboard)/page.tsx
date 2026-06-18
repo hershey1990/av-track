@@ -37,15 +37,17 @@ export default function DashboardPage() {
       </div>
 
       {profile && (
-        <DashboardKpiCards
-          userId={user.id}
-          profileType={profile.type}
-          viaticoRate={profile.viatico}
-          periodTotalHours={summary?.total_hours}
-        />
+        <>
+          <DashboardKpiCards
+            userId={user.id}
+            profileType={profile.type}
+            viaticoRate={profile.viatico}
+            periodTotalHours={summary?.total_hours}
+            periodTotalExtraHours={summary?.total_extra_hours}
+          />
+          <TimeEntryCard userId={user.id} profileType={profile.type} />
+        </>
       )}
-
-      <TimeEntryCard userId={user.id} />
 
       {activePeriod && entries && profile && (
         <Card>

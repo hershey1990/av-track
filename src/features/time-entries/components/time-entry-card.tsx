@@ -11,9 +11,12 @@ import { Field, FieldLabel, FieldContent, FieldError } from '@/components/ui/fie
 import { getTodayNicaragua } from '@/lib/timezone'
 import { useCreateEntry, useUpdateEntry, useTodayEntry } from '../hooks/use-entries'
 import { timeEntrySchema, type TimeEntryFormData } from '../schemas'
+import { calcExtraHours, calcHours, getStandardHours } from '@/lib/calculations'
+import type { EmploymentType } from '@/types'
 
 interface Props {
   userId: string
+  profileType: EmploymentType
 }
 
 function TimeField({ form, name, label }: {
@@ -40,7 +43,7 @@ function TimeField({ form, name, label }: {
   )
 }
 
-export function TimeEntryCard({ userId }: Props) {
+export function TimeEntryCard({ userId, profileType }: Props) {
   const today = getTodayNicaragua()
   const { data: existingEntry } = useTodayEntry(userId)
   const createEntry = useCreateEntry()
@@ -60,6 +63,14 @@ export function TimeEntryCard({ userId }: Props) {
   })
 
   const onSubmit = async (data: TimeEntryFormData) => {
+    // Validar concepto si hay horas extra
+    const hours = calcHours(data.start_time, data.end_time)
+    const extra = calcExtraHours(hours, getStandardHours(profileType))
+    if (extra > 0 && !data.concept?.trim()) {
+      form.setError('concept', { message: 'El concepto es requerido cuando hay horas extra' })
+      return
+    }
+
     if (existingEntry) {
       await updateEntry.mutateAsync({ id: existingEntry.id, values: data })
     } else {
@@ -123,7 +134,7 @@ export function TimeEntryCard({ userId }: Props) {
           <FormFieldInput
             control={form.control}
             name="notes"
-            label="Notas (opcional)"
+            label="Notas"
           />
           <div className="flex gap-2">
             <Button type="submit" disabled={form.formState.isSubmitting}>

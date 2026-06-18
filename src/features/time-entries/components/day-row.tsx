@@ -14,12 +14,13 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { TableRow, TableCell } from '@/components/ui/table'
 import { formatDateShort } from '@/lib/timezone'
 import { useUpdateEntry, useDeleteEntry } from '../hooks/use-entries'
-import { calcHours } from '@/lib/calculations'
-import type { TimeEntry } from '@/types'
+import { calcHours, calcExtraHours, getStandardHours } from '@/lib/calculations'
+import type { TimeEntry, EmploymentType } from '@/types'
 import { dayRowSchema, type DayRowFormData } from '../schemas'
 
 interface Props {
   entry: TimeEntry
+  profileType?: EmploymentType
 }
 
 function TimeField({ form, name, label }: {
@@ -82,7 +83,7 @@ function NotesField({ form }: { form: ReturnType<typeof useForm<DayRowFormData>>
   )
 }
 
-export function DayRow({ entry }: Props) {
+export function DayRow({ entry, profileType = 'fulltime' }: Props) {
   const [open, setOpen] = useState(false)
   const updateEntry = useUpdateEntry()
   const deleteEntry = useDeleteEntry()
@@ -100,6 +101,14 @@ export function DayRow({ entry }: Props) {
   const hours = calcHours(entry.start_time, entry.end_time)
 
   const onSubmit = async (data: DayRowFormData) => {
+    // Validar concepto si hay horas extra
+    const hours = calcHours(data.start_time, data.end_time)
+    const extra = calcExtraHours(hours, getStandardHours(profileType))
+    if (extra > 0 && !data.concept?.trim()) {
+      form.setError('concept', { message: 'El concepto es requerido cuando hay horas extra' })
+      return
+    }
+
     await updateEntry.mutateAsync({ id: entry.id, values: data })
     setOpen(false)
   }

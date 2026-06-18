@@ -4,6 +4,7 @@ import { useProfile } from '@/hooks/use-profile'
 import { useEntries } from '@/features/time-entries/hooks/use-entries'
 import { DayRow } from '@/features/time-entries/components/day-row'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { EmploymentType } from '@/types'
 
 export default function UserEntriesPage() {
   const { id } = useParams<{ id: string }>()
@@ -37,7 +38,7 @@ export default function UserEntriesPage() {
                     <th className="text-left p-2 font-medium" />
                   </tr>
                 </thead>
-                <tbody>{entries.map((entry) => <DayRow key={entry.id} entry={entry} />)}</tbody>
+                <tbody>{entries.map((entry) => <DayRow key={entry.id} entry={entry} profileType={targetProfile?.type as EmploymentType} />)}</tbody>
               </table>
             </div>
           ) : (
