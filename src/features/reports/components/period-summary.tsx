@@ -5,6 +5,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { formatDateShort } from '@/lib/timezone'
 import { calcPeriodSummary, formatTime, formatHours, formatCurrency } from '@/lib/calculations'
 import type { TimeEntry, EmploymentType } from '@/types'
 
@@ -36,7 +37,7 @@ export function PeriodSummaryTable({ entries, type, viaticoRate }: Props) {
       <TableBody>
         {summary.days.map((day) => (
           <TableRow key={day.date}>
-            <TableCell>{new Date(day.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}</TableCell>
+            <TableCell>{formatDateShort(day.date)}</TableCell>
             <TableCell>{formatTime(day.start_time)}</TableCell>
             <TableCell>{formatTime(day.end_time)}</TableCell>
             <TableCell className="font-medium">{formatHours(day.hours)}h</TableCell>

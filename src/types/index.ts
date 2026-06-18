@@ -8,6 +8,7 @@ export interface Profile {
   role: UserRole
   viatico: number
   extra_rate: number
+  employee_code?: string
   created_at: string
 }
 
@@ -36,11 +37,13 @@ export interface Period {
 export interface DayCalculation {
   date: string
   start_time: string
+  scheduled_end_time: string
   end_time: string
   concept: string
   hours: number
   standard_hours: number
   extra_hours: number
+  extra_time: string
   viatico: number
   viatico_amount: number
 }

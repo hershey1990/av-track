@@ -23,6 +23,7 @@ export default function UserDetailPage() {
     resolver: zodResolver(userEditSchema),
     values: targetProfile ? {
       full_name: targetProfile.full_name,
+      employee_code: targetProfile.employee_code || '',
       type: targetProfile.type,
       role: targetProfile.role,
       viatico: targetProfile.viatico,
@@ -57,6 +58,7 @@ export default function UserDetailPage() {
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormFieldInput control={form.control} name="full_name" label="Nombre" />
+            <FormFieldInput control={form.control} name="employee_code" label="Código Empleado" />
             <FormFieldSelect
               control={form.control} name="type" label="Tipo"
               options={[{ value: 'fulltime', label: 'Full-time' }, { value: 'partime', label: 'Part-time' }]}

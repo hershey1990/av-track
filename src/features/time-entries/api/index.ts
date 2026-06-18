@@ -1,6 +1,7 @@
 'use client'
 
 import { getSupabase } from '@/lib/supabase/client'
+import { getTodayNicaragua } from '@/lib/timezone'
 import type { TimeEntry } from '@/types'
 import type { TimeEntryFormData } from '../schemas'
 
@@ -22,7 +23,7 @@ export async function getEntries(userId: string, from?: string, to?: string): Pr
 
 export async function getTodayEntry(userId: string): Promise<TimeEntry | null> {
   const supabase = getSupabase()
-  const today = new Date().toISOString().substring(0, 10)
+  const today = getTodayNicaragua()
   const { data, error } = await supabase
     .from('time_entries')
     .select('*')

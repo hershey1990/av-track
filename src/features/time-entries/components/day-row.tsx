@@ -12,6 +12,7 @@ import {
 import { Field, FieldLabel, FieldContent, FieldError } from '@/components/ui/field'
 import { Pencil, Trash2 } from 'lucide-react'
 import { TableRow, TableCell } from '@/components/ui/table'
+import { formatDateShort } from '@/lib/timezone'
 import { useUpdateEntry, useDeleteEntry } from '../hooks/use-entries'
 import { calcHours } from '@/lib/calculations'
 import type { TimeEntry } from '@/types'
@@ -111,7 +112,7 @@ export function DayRow({ entry }: Props) {
 
   return (
     <TableRow>
-      <TableCell>{new Date(entry.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}</TableCell>
+      <TableCell>{formatDateShort(entry.date)}</TableCell>
       <TableCell>{entry.start_time.substring(0, 5)}</TableCell>
       <TableCell>{entry.end_time.substring(0, 5)}</TableCell>
       <TableCell className="font-medium">{hours.toFixed(2)}h</TableCell>

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Lock, Unlock } from 'lucide-react'
+import { formatDateFull } from '@/lib/timezone'
 
 export default function AdminPeriodsPage() {
   const { user } = useUser()
@@ -47,7 +48,7 @@ export default function AdminPeriodsPage() {
               <div>
                 <p className="font-medium">{p.name}</p>
                 <p className="text-muted-foreground text-xs">
-                  {new Date(p.start_date).toLocaleDateString('es-ES')} — {new Date(p.end_date).toLocaleDateString('es-ES')}
+                  {formatDateFull(p.start_date)} — {formatDateFull(p.end_date)}
                 </p>
               </div>
               <div className="flex items-center gap-2">

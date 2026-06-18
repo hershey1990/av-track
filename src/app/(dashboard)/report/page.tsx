@@ -10,7 +10,8 @@ import { ExcelExport } from '@/features/reports/components/excel-export'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { calcPeriodSummary } from '@/lib/calculations'
+import { calcPeriodSummary, generatePeriodDays } from '@/lib/calculations'
+import { formatDateFull } from '@/lib/timezone'
 import { useMemo } from 'react'
 
 export default function ReportPage() {
@@ -25,6 +26,13 @@ export default function ReportPage() {
   const summary = useMemo(
     () => entries && profile ? calcPeriodSummary(entries, profile.type, profile.viatico) : null,
     [entries, profile]
+  )
+
+  const allPeriodDays = useMemo(
+    () => entries && selectedPeriod && profile
+      ? generatePeriodDays(entries, selectedPeriod.start_date, selectedPeriod.end_date, profile.type, profile.viatico)
+      : null,
+    [entries, selectedPeriod, profile]
   )
 
   return (
@@ -49,8 +57,8 @@ export default function ReportPage() {
 
       {selectedPeriod && (
         <p className="text-sm text-muted-foreground">
-          {new Date(selectedPeriod.start_date).toLocaleDateString('es-ES')} —{' '}
-          {new Date(selectedPeriod.end_date).toLocaleDateString('es-ES')}
+          {formatDateFull(selectedPeriod.start_date)} —{' '}
+          {formatDateFull(selectedPeriod.end_date)}
         </p>
       )}
 
@@ -60,8 +68,9 @@ export default function ReportPage() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">{selectedPeriod.name}</CardTitle>
               <ExcelExport
-                days={summary.days}
-                periodName={selectedPeriod.name}
+                days={allPeriodDays!}
+                period={selectedPeriod}
+                profile={profile}
               />
             </CardHeader>
             <CardContent className="p-0">

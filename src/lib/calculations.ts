@@ -1,3 +1,4 @@
+import { addDays, parseISO, format } from 'date-fns'
 import { THRESHOLD_VIATICO_HORAS } from '@/config/constants'
 import type { EmploymentType, DayCalculation, PeriodSummary, TimeEntry } from '@/types'
 
@@ -14,11 +15,81 @@ export function calcHours(startTime: string, endTime: string): number {
 }
 
 export function calcExtraHours(hours: number, standardHours: number): number {
-  return Math.max(0, Math.round((hours - standardHours) * 100) / 100)
+  const diffMinutes = Math.round((hours - standardHours) * 60)
+  if (diffMinutes <= 0) return 0
+  return Math.floor(diffMinutes / 15)
 }
 
 export function calcViatico(hours: number): boolean {
   return hours >= THRESHOLD_VIATICO_HORAS
+}
+
+export function calcScheduledEndTime(
+  startTime: string,
+  type: EmploymentType
+): string {
+  const [sh, sm] = startTime.split(':').map(Number)
+  const addHours = type === 'partime' ? 5 : 8
+  const totalMinutes = sh * 60 + sm + addHours * 60
+  const h = Math.floor(totalMinutes / 60) % 24
+  const m = totalMinutes % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+export function calcExtraTime(scheduledEnd: string, actualEnd: string): string {
+  const [sh, sm] = scheduledEnd.split(':').map(Number)
+  const [eh, em] = actualEnd.split(':').map(Number)
+  const scheduledMinutes = sh * 60 + sm
+  const actualMinutes = eh * 60 + em
+  const diff = actualMinutes - scheduledMinutes
+  if (diff <= 0) return '0:00'
+  const h = Math.floor(diff / 60)
+  const m = diff % 60
+  return `${h}:${String(m).padStart(2, '0')}`
+}
+
+export function generatePeriodDays(
+  entries: TimeEntry[],
+  startDate: string,
+  endDate: string,
+  type: EmploymentType,
+  viaticoRate: number
+): DayCalculation[] {
+  const entryMap = new Map<string, TimeEntry>()
+  for (const e of entries) {
+    entryMap.set(e.date, e)
+  }
+
+  const days: DayCalculation[] = []
+  let current = parseISO(startDate)
+  const end = parseISO(endDate)
+
+  while (current <= end) {
+    const dateStr = format(current, 'yyyy-MM-dd')
+    const entry = entryMap.get(dateStr)
+
+    if (entry) {
+      days.push(calcDay(entry, type, viaticoRate))
+    } else {
+      days.push({
+        date: dateStr,
+        start_time: 'Off',
+        scheduled_end_time: 'Off',
+        end_time: 'Off',
+        concept: 'Off',
+        hours: 0,
+        standard_hours: getStandardHours(type),
+        extra_hours: 0,
+        extra_time: 'Off',
+        viatico: 0,
+        viatico_amount: 0,
+      })
+    }
+
+    current = addDays(current, 1)
+  }
+
+  return days
 }
 
 export function calcDay(
@@ -30,15 +101,19 @@ export function calcDay(
   const standardHours = getStandardHours(type)
   const extraHours = calcExtraHours(hours, standardHours)
   const tieneViatico = calcViatico(hours)
+  const scheduledEnd = calcScheduledEndTime(entry.start_time, type)
+  const extraTime = calcExtraTime(scheduledEnd, entry.end_time)
 
   return {
     date: entry.date,
     start_time: entry.start_time,
+    scheduled_end_time: scheduledEnd,
     end_time: entry.end_time,
     concept: entry.concept,
     hours,
     standard_hours: standardHours,
     extra_hours: extraHours,
+    extra_time: extraTime,
     viatico: tieneViatico ? 1 : 0,
     viatico_amount: tieneViatico ? viaticoRate : 0,
   }

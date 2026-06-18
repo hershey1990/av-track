@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useUser } from '@/hooks/use-user'
+import { getMonthRangeNicaragua } from '@/lib/timezone'
 import { useEntries } from '@/features/time-entries/hooks/use-entries'
 import { DayRow } from '@/features/time-entries/components/day-row'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,9 +14,7 @@ import { Label } from '@/components/ui/label'
 
 export default function HistoryPage() {
   const { user } = useUser()
-  const today = new Date()
-  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().substring(0, 10)
-  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().substring(0, 10)
+  const { firstDay, lastDay } = getMonthRangeNicaragua()
 
   const [from, setFrom] = useState(firstDay)
   const [to, setTo] = useState(lastDay)

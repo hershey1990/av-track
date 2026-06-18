@@ -1,0 +1,1 @@
+import{o as i,s as e,_ as a}from"./schemas-LfNH3WpE.js";const r=i({email:e().email("Email inválido"),password:e().min(6,"Mínimo 6 caracteres")}),s=i({email:e().email("Email inválido"),password:e().min(6,"Mínimo 6 caracteres"),full_name:e().min(1,"El nombre es requerido"),type:a(["partime","fulltime"])});export{r as l,s as r};

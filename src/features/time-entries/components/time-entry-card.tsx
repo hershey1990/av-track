@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormFieldInput } from '@/components/ui/form-field-input'
 import { Field, FieldLabel, FieldContent, FieldError } from '@/components/ui/field'
+import { getTodayNicaragua } from '@/lib/timezone'
 import { useCreateEntry, useUpdateEntry, useTodayEntry } from '../hooks/use-entries'
 import { timeEntrySchema, type TimeEntryFormData } from '../schemas'
 
@@ -40,7 +41,7 @@ function TimeField({ form, name, label }: {
 }
 
 export function TimeEntryCard({ userId }: Props) {
-  const today = new Date().toISOString().substring(0, 10)
+  const today = getTodayNicaragua()
   const { data: existingEntry } = useTodayEntry(userId)
   const createEntry = useCreateEntry()
   const updateEntry = useUpdateEntry()

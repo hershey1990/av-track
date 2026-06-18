@@ -6,6 +6,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lock, Unlock } from "lucide-react";
+import { formatDateFull } from "@/lib/timezone";
 
 export function PeriodList() {
   const { data: periods } = usePeriods();
@@ -31,8 +32,8 @@ export function PeriodList() {
             <div>
               <span className="font-medium">{p.name}</span>
               <span className="text-muted-foreground ml-2">
-                {new Date(p.start_date).toLocaleDateString("es-ES")} -{" "}
-                {new Date(p.end_date).toLocaleDateString("es-ES")}
+                {formatDateFull(p.start_date)} —{' '}
+                {formatDateFull(p.end_date)}
               </span>
             </div>
             <Button
