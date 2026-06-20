@@ -1,0 +1,1 @@
+import{g as t,Z as o,o as a,_ as m,s as e}from"./schemas-BE07ORfl.js";function r(n){return t(o,n)}const s=a({name:e().min(1,"El nombre es requerido"),start_date:e().min(1),end_date:e().min(1)}),u=a({full_name:e().min(1),employee_code:e().optional(),type:m(["partime","fulltime"]),role:m(["user","admin"]),viatico:r().min(0),extra_rate:r().min(0)});export{s as p,u};

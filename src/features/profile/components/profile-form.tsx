@@ -9,6 +9,7 @@ import { FormFieldSelect } from '@/components/ui/form-field-select'
 import { toast } from 'sonner'
 import { useProfile, useUpdateProfile } from '@/hooks/use-profile'
 import { profileSchema, type ProfileFormData } from '../schemas'
+import { WorkingDaysSelector } from './working-days-selector'
 
 interface Props {
   userId: string
@@ -20,7 +21,7 @@ export function ProfileForm({ userId }: Props) {
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    values: profile ? { full_name: profile.full_name, type: profile.type } : undefined,
+    values: profile ? { full_name: profile.full_name, type: profile.type, working_days: profile.working_days ?? [1, 2, 3, 4, 5] } : undefined,
   })
 
   const onSubmit = async (data: ProfileFormData) => {
@@ -51,6 +52,7 @@ export function ProfileForm({ userId }: Props) {
               { value: 'partime', label: 'Part-time (5h)' },
             ]}
           />
+          <WorkingDaysSelector control={form.control} />
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Guardando...' : 'Guardar cambios'}
           </Button>
