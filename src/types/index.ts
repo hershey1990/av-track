@@ -135,3 +135,20 @@ export interface Notification {
   is_read: boolean
   created_at: string
 }
+
+// ── Shift Swaps ──────────────────────────────────────────
+
+export type SwapStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled'
+
+export interface ShiftSwap {
+  id: string
+  requester_id: string
+  target_id: string
+  date: string
+  requester_shift?: string
+  target_shift?: string
+  reason?: string
+  status: SwapStatus
+  responded_at?: string
+  created_at: string
+}

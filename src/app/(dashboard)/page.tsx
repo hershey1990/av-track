@@ -10,6 +10,8 @@ import { DashboardKpiCards } from '@/features/time-entries/components/dashboard-
 import { PeriodSummaryTable } from '@/features/reports/components/period-summary'
 import { AbsenceRequestCard } from '@/features/absences/components/absence-request-card'
 import { AbsenceList } from '@/features/absences/components/absence-list'
+import { IncomingSwaps } from '@/features/shift-swaps/components/incoming-swaps'
+import { SwapRequestForm } from '@/features/shift-swaps/components/swap-request-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { calcPeriodSummary } from '@/lib/calculations'
 
@@ -50,6 +52,8 @@ export default function DashboardPage() {
           <TimeEntryCard userId={user.id} profileType={profile.type} />
           <AbsenceRequestCard userId={user.id} />
           <AbsenceList userId={user.id} />
+          <IncomingSwaps />
+          <SwapRequestForm />
         </>
       )}
 
