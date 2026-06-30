@@ -18,8 +18,8 @@ import type { TimeEntry, EmploymentType } from '@/types'
 // ── getStandardHours ──────────────────────────────────────────
 
 describe('getStandardHours', () => {
-  it('returns 5 for partime', () => {
-    expect(getStandardHours('partime')).toBe(5)
+  it('returns 5 for parttime', () => {
+    expect(getStandardHours('parttime')).toBe(5)
   })
 
   it('returns 8 for fulltime', () => {
@@ -117,7 +117,7 @@ describe('calcViatico', () => {
 // ── calcDay ───────────────────────────────────────────────────
 
 describe('calcDay', () => {
-  const partimeEntry: TimeEntry = {
+  const parttimeEntry: TimeEntry = {
     id: '1',
     user_id: 'u1',
     date: '2025-06-17',
@@ -142,7 +142,7 @@ describe('calcDay', () => {
   }
 
   it('calculates a part-time day with 0.5 extra hour', () => {
-    const result = calcDay(partimeEntry, 'partime', 180)
+    const result = calcDay(parttimeEntry, 'parttime', 180)
     expect(result.hours).toBeCloseTo(5.25, 2)
     expect(result.standard_hours).toBe(5)
     expect(result.extra_hours).toBe(0.5) // 15 min extra → primer bloque (0.5h)
@@ -205,7 +205,7 @@ describe('calcPeriodSummary', () => {
       makeEntry('2025-06-18', '08:00', '13:00'), // part-time: 5.0h, 0 extra
     ]
 
-    const result = calcPeriodSummary(entries, 'partime', 180)
+    const result = calcPeriodSummary(entries, 'parttime', 180)
 
     expect(result.days).toHaveLength(3)
     expect(result.total_hours).toBeCloseTo(15.75, 2)
@@ -234,8 +234,8 @@ describe('calcPeriodSummary', () => {
 
 describe('calcScheduledEndTime', () => {
   it('adds 5 hours for part-time', () => {
-    expect(calcScheduledEndTime('03:00', 'partime')).toBe('08:00')
-    expect(calcScheduledEndTime('08:00', 'partime')).toBe('13:00')
+    expect(calcScheduledEndTime('03:00', 'parttime')).toBe('08:00')
+    expect(calcScheduledEndTime('08:00', 'parttime')).toBe('13:00')
   })
 
   it('adds 8 hours for full-time', () => {
@@ -244,7 +244,7 @@ describe('calcScheduledEndTime', () => {
   })
 
   it('wraps around midnight correctly', () => {
-    expect(calcScheduledEndTime('20:00', 'partime')).toBe('01:00')
+    expect(calcScheduledEndTime('20:00', 'parttime')).toBe('01:00')
     expect(calcScheduledEndTime('18:00', 'fulltime')).toBe('02:00')
   })
 })
@@ -302,7 +302,7 @@ describe('generatePeriodDays', () => {
       makeEntry('2025-06-18', '08:00', '13:00'),
     ]
 
-    const result = generatePeriodDays(entries, '2025-06-16', '2025-06-20', 'partime', 180)
+    const result = generatePeriodDays(entries, '2025-06-16', '2025-06-20', 'parttime', 180)
 
     expect(result).toHaveLength(5) // 16, 17, 18, 19, 20
     expect(result[0].date).toBe('2025-06-16')

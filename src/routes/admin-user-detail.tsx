@@ -61,7 +61,7 @@ export default function UserDetailPage() {
             <FormFieldInput control={form.control} name="employee_code" label="Código Empleado" />
             <FormFieldSelect
               control={form.control} name="type" label="Tipo"
-              options={[{ value: 'fulltime', label: 'Full-time' }, { value: 'partime', label: 'Part-time' }]}
+              options={[{ value: 'fulltime', label: 'Full-time' }, { value: 'parttime', label: 'Part-time' }]}
             />
             <FormFieldSelect
               control={form.control} name="role" label="Rol"

@@ -1,4 +1,4 @@
-export type EmploymentType = 'partime' | 'fulltime'
+export type EmploymentType = 'parttime' | 'fulltime'
 export type UserRole = 'user' | 'admin'
 
 export interface Profile {
