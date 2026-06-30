@@ -9,6 +9,7 @@ export interface Profile {
   viatico: number
   extra_rate: number
   employee_code?: string
+  working_days: number[]
   created_at: string
 }
 

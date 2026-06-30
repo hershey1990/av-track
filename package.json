@@ -34,6 +34,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@supabase/mcp-server-supabase": "^0.8.2",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/vite": "^4",
     "@types/file-saver": "^2.0.7",
