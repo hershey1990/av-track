@@ -29,17 +29,44 @@ export async function getTodayEntry(userId: string): Promise<TimeEntry | null> {
     .select('*')
     .eq('user_id', userId)
     .eq('date', today)
+    .order('slot_index', { ascending: true })
+    .limit(1)
     .single()
 
   if (error && error.code !== 'PGRST116') throw error
   return data
 }
 
-export async function createEntry(userId: string, values: TimeEntryFormData): Promise<TimeEntry> {
+export async function getTodayEntries(userId: string): Promise<TimeEntry[]> {
   const supabase = getSupabase()
+  const today = getTodayNicaragua()
   const { data, error } = await supabase
     .from('time_entries')
-    .insert({ user_id: userId, ...values })
+    .select('*')
+    .eq('user_id', userId)
+    .eq('date', today)
+    .order('slot_index', { ascending: true })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function createEntry(userId: string, values: TimeEntryFormData): Promise<TimeEntry> {
+  const supabase = getSupabase()
+  // Calculate the next slot_index for this user+date
+  const { data: existing } = await supabase
+    .from('time_entries')
+    .select('slot_index')
+    .eq('user_id', userId)
+    .eq('date', values.date)
+    .order('slot_index', { ascending: false })
+    .limit(1)
+
+  const slotIndex = (existing && existing.length > 0) ? (existing[0].slot_index ?? -1) + 1 : 0
+
+  const { data, error } = await supabase
+    .from('time_entries')
+    .insert({ user_id: userId, slot_index: slotIndex, ...values })
     .select()
     .single()
   if (error) throw error

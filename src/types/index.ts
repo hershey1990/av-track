@@ -19,6 +19,7 @@ export interface TimeEntry {
   date: string
   start_time: string
   end_time: string
+  slot_index?: number
   concept: string
   notes: string
   created_at: string

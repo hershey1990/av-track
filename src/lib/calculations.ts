@@ -121,9 +121,12 @@ export function generatePeriodDays(
   policy?: PolicyConfig,
   holidays?: Holiday[]
 ): DayCalculation[] {
-  const entryMap = new Map<string, TimeEntry>()
+  // Group entries by date
+  const entryGroups = new Map<string, TimeEntry[]>()
   for (const e of entries) {
-    entryMap.set(e.date, e)
+    const group = entryGroups.get(e.date) ?? []
+    group.push(e)
+    entryGroups.set(e.date, group)
   }
 
   const days: DayCalculation[] = []
@@ -132,10 +135,15 @@ export function generatePeriodDays(
 
   while (current <= end) {
     const dateStr = format(current, 'yyyy-MM-dd')
-    const entry = entryMap.get(dateStr)
+    const dateEntries = entryGroups.get(dateStr)
 
-    if (entry) {
-      days.push(calcDay(entry, type, viaticoRate, policy, holidays))
+    if (dateEntries) {
+      // One DayCalculation per entry group (sorted by slot_index)
+      dateEntries
+        .sort((a, b) => (a.slot_index ?? 0) - (b.slot_index ?? 0))
+        .forEach((entry) => {
+          days.push(calcDay(entry, type, viaticoRate, policy, holidays))
+        })
     } else {
       days.push({
         date: dateStr,
