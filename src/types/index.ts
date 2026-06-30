@@ -97,3 +97,22 @@ export interface Holiday {
   date: string
   name: string
 }
+
+// ── Absences ─────────────────────────────────────────────
+
+export type AbsenceType = 'vacation' | 'sick' | 'compensatory'
+export type AbsenceStatus = 'pending' | 'approved' | 'rejected'
+
+export interface Absence {
+  id: string
+  user_id: string
+  type: AbsenceType
+  start_date: string
+  end_date: string
+  reason?: string
+  status: AbsenceStatus
+  reviewed_by?: string
+  reviewed_at?: string
+  created_at: string
+  updated_at: string
+}

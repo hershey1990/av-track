@@ -2,6 +2,7 @@ import { useUser } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-profile";
 import { PeriodList } from "@/features/admin/components/period-list";
 import { UserList } from "@/features/admin/components/user-list";
+import { AdminAbsenceList } from "@/features/absences/components/admin-absence-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export default function AdminPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Panel Admin</h1>
+      <AdminAbsenceList />
       <PeriodList />
       <UserList />
       <Card>
