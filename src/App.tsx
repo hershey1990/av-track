@@ -15,6 +15,7 @@ const AdminPage = lazy(() => import('@/routes/admin'))
 const AdminPeriodsPage = lazy(() => import('@/routes/admin-periods'))
 const AdminUserDetailPage = lazy(() => import('@/routes/admin-user-detail'))
 const AdminUserEntriesPage = lazy(() => import('@/routes/admin-user-entries'))
+const AdminPolicyPage = lazy(() => import('@/routes/admin-policy'))
 const OfflinePage = lazy(() => import('@/routes/offline'))
 
 function ProtectedLayout() {
@@ -65,6 +66,7 @@ export function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/periods" element={<AdminPeriodsPage />} />
+            <Route path="/admin/policy" element={<AdminPolicyPage />} />
             <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
             <Route path="/admin/users/:id/entries" element={<AdminUserEntriesPage />} />
           </Route>

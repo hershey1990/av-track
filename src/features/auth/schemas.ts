@@ -11,7 +11,7 @@ export const registerSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   full_name: z.string().min(1, 'El nombre es requerido'),
-  type: z.enum(['partime', 'fulltime']),
+  type: z.enum(['parttime', 'fulltime']),
 })
 
 export type RegisterFormData = z.infer<typeof registerSchema>

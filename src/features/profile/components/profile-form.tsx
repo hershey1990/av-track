@@ -49,7 +49,7 @@ export function ProfileForm({ userId }: Props) {
             label="Tipo de jornada"
             options={[
               { value: 'fulltime', label: 'Full-time (8h)' },
-              { value: 'partime', label: 'Part-time (5h)' },
+              { value: 'parttime', label: 'Part-time (5h)' },
             ]}
           />
           <WorkingDaysSelector control={form.control} />

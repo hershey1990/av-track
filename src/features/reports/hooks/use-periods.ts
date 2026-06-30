@@ -39,3 +39,25 @@ export function useUpdatePeriod() {
     },
   })
 }
+
+export function useApprovePeriod() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, userId, note }: { id: string; userId: string; note?: string }) =>
+      api.approvePeriod(id, userId, note),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['periods'] })
+    },
+  })
+}
+
+export function useRejectPeriod() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, userId, note }: { id: string; userId: string; note?: string }) =>
+      api.rejectPeriod(id, userId, note),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['periods'] })
+    },
+  })
+}
