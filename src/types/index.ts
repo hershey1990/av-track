@@ -120,3 +120,18 @@ export interface Absence {
   created_at: string
   updated_at: string
 }
+
+// ── Notifications ────────────────────────────────────────
+
+export type NotificationType = 'absence_request' | 'absence_approved' | 'absence_rejected' | 'period_approval' | 'period_approved' | 'period_rejected' | 'shift_swap' | 'system'
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: NotificationType
+  title: string
+  message: string
+  link?: string
+  is_read: boolean
+  created_at: string
+}

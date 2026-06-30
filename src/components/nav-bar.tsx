@@ -11,6 +11,7 @@ import { Home, History, FileText, Settings, Shield, LogOut } from 'lucide-react'
 import { signOut } from '@/features/auth/api'
 import { useProfile } from '@/hooks/use-profile'
 import { useUser } from '@/hooks/use-user'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
 
 export function NavBar() {
   const { pathname } = useLocation()
@@ -42,6 +43,8 @@ export function NavBar() {
               <span className="hidden sm:inline">Hoy</span>
             </Button>
           </Link>
+
+          <NotificationBell />
 
           <DropdownMenu>
             <DropdownMenuTrigger className="ml-1 cursor-pointer">
