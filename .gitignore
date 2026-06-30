@@ -43,6 +43,9 @@ yarn-error.log*
 public/sw*
 public/swe-worker*
 
+# kiro (AI skill files)
+/.kiro/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
