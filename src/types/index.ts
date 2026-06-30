@@ -34,6 +34,10 @@ export interface Period {
   is_locked: boolean
   created_by: string
   created_at: string
+  approval_status: 'pending' | 'approved' | 'rejected'
+  approved_by?: string
+  approved_at?: string
+  approval_note?: string
 }
 
 export interface DayCalculation {

@@ -8,6 +8,7 @@ import { usePeriodEntries } from '@/features/time-entries/hooks/use-entries'
 import { PeriodSummaryTable } from '@/features/reports/components/period-summary'
 import { ExcelExport } from '@/features/reports/components/excel-export'
 import { PdfExport } from '@/features/reports/components/pdf-export'
+import { ApprovalPanel } from '@/features/reports/components/approval-panel'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -89,6 +90,7 @@ export default function ReportPage() {
               />
             </CardContent>
           </Card>
+          <ApprovalPanel period={selectedPeriod} />
         </>
       )}
 
