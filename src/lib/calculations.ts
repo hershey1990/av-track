@@ -1,6 +1,69 @@
 import { addDays, parseISO, format } from 'date-fns'
 import { THRESHOLD_VIATICO_HORAS } from '@/config/constants'
-import type { EmploymentType, DayCalculation, PeriodSummary, TimeEntry } from '@/types'
+import type {
+  EmploymentType,
+  DayCalculation,
+  PeriodSummary,
+  TimeEntry,
+  PolicyConfig,
+  Holiday,
+} from '@/types'
+
+// ── Helpers ────────────────────────────────────────────────────
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return h * 60 + m
+}
+
+function isSunday(dateStr: string): boolean {
+  return new Date(dateStr + 'T12:00:00').getDay() === 0
+}
+
+function isHoliday(dateStr: string, holidays?: Holiday[]): Holiday | undefined {
+  return holidays?.find((h) => h.date === dateStr)
+}
+
+/**
+ * Calculate how many hours of a shift fall within the night window.
+ * Handles windows that cross midnight (e.g. 19:00-06:00).
+ */
+export function calcNightHours(
+  start: string,
+  end: string,
+  nightStart: string,
+  nightEnd: string,
+): number {
+  const s = timeToMinutes(start)
+  let e = timeToMinutes(end)
+  const crossesMidnight = e <= s
+  if (crossesMidnight) e += 24 * 60
+
+  const ns = timeToMinutes(nightStart)
+  const ne = timeToMinutes(nightEnd)
+  let totalNight = 0
+
+  if (ns > ne) {
+    // Night window crosses midnight (e.g. 19:00-06:00)
+    // On the clock: two sub-windows [00:00, ne) and [ns, 24:00)
+    if (crossesMidnight) {
+      // Shift also crosses midnight → compare on extended timeline
+      totalNight = Math.max(0, Math.min(e, ne + 24 * 60) - Math.max(s, ns))
+    } else {
+      // Shift is fully within one calendar day
+      const w1 = Math.max(0, Math.min(e, ne) - Math.max(s, 0))      // [00:00, ne)
+      const w2 = Math.max(0, Math.min(e, 24 * 60) - Math.max(s, ns)) // [ns, 24:00)
+      totalNight = Math.min(w1 + w2, e - s)
+    }
+  } else {
+    // Simple window: no midnight crossing
+    totalNight = Math.max(0, Math.min(e, ne) - Math.max(s, ns))
+  }
+
+  return Math.round((totalNight / 60) * 100) / 100
+}
+
+// ── Core calculations ─────────────────────────────────────────
 
 export function getStandardHours(type: EmploymentType): number {
   return type === 'parttime' ? 5 : 8
@@ -54,7 +117,9 @@ export function generatePeriodDays(
   startDate: string,
   endDate: string,
   type: EmploymentType,
-  viaticoRate: number
+  viaticoRate: number,
+  policy?: PolicyConfig,
+  holidays?: Holiday[]
 ): DayCalculation[] {
   const entryMap = new Map<string, TimeEntry>()
   for (const e of entries) {
@@ -70,7 +135,7 @@ export function generatePeriodDays(
     const entry = entryMap.get(dateStr)
 
     if (entry) {
-      days.push(calcDay(entry, type, viaticoRate))
+      days.push(calcDay(entry, type, viaticoRate, policy, holidays))
     } else {
       days.push({
         date: dateStr,
@@ -84,6 +149,15 @@ export function generatePeriodDays(
         extra_time: 'Off',
         viatico: 0,
         viatico_amount: 0,
+        regular_hours: 0,
+        night_hours: 0,
+        sunday_hours: 0,
+        holiday_hours: 0,
+        night_surcharge: 0,
+        sunday_surcharge: 0,
+        holiday_surcharge: 0,
+        is_sunday: false,
+        is_holiday: false,
       })
     }
 
@@ -96,7 +170,9 @@ export function generatePeriodDays(
 export function calcDay(
   entry: TimeEntry,
   type: EmploymentType,
-  viaticoRate: number
+  viaticoRate: number,
+  policy?: PolicyConfig,
+  holidays?: Holiday[]
 ): DayCalculation {
   const hours = calcHours(entry.start_time, entry.end_time)
   const standardHours = getStandardHours(type)
@@ -104,6 +180,40 @@ export function calcDay(
   const tieneViatico = calcViatico(hours)
   const scheduledEnd = calcScheduledEndTime(entry.start_time, type)
   const extraTime = calcExtraTime(scheduledEnd, entry.end_time)
+
+  const dateStr = entry.date
+  const sunday = isSunday(dateStr)
+  const holiday = isHoliday(dateStr, holidays)
+
+  // Calculate regular vs night hours
+  let regularHours = hours
+  let nightHours = 0
+  let nightSurcharge = 0
+  let sundaySurcharge = 0
+  let holidaySurcharge = 0
+
+  if (policy) {
+    nightHours = calcNightHours(
+      entry.start_time,
+      entry.end_time,
+      policy.night_start,
+      policy.night_end,
+    )
+    regularHours = Math.round((hours - nightHours) * 100) / 100
+
+    if (nightHours > 0) {
+      nightSurcharge = Math.round(nightHours * (policy.night_surcharge_pct / 100) * 100) / 100
+    }
+    if (sunday) {
+      sundaySurcharge = Math.round(hours * (policy.sunday_surcharge_pct / 100) * 100) / 100
+      // If also night hours, apply both surcharges
+    }
+    if (holiday) {
+      holidaySurcharge = Math.round(hours * (policy.holiday_surcharge_pct / 100) * 100) / 100
+    }
+  } else {
+    regularHours = hours
+  }
 
   return {
     date: entry.date,
@@ -117,15 +227,27 @@ export function calcDay(
     extra_time: extraTime,
     viatico: tieneViatico ? 1 : 0,
     viatico_amount: tieneViatico ? viaticoRate : 0,
+    regular_hours: regularHours,
+    night_hours: nightHours,
+    sunday_hours: sunday ? hours : 0,
+    holiday_hours: holiday ? hours : 0,
+    night_surcharge: nightSurcharge,
+    sunday_surcharge: sundaySurcharge,
+    holiday_surcharge: holidaySurcharge,
+    is_sunday: sunday,
+    is_holiday: !!holiday,
+    holiday_name: holiday?.name,
   }
 }
 
 export function calcPeriodSummary(
   entries: TimeEntry[],
   type: EmploymentType,
-  viaticoRate: number
+  viaticoRate: number,
+  policy?: PolicyConfig,
+  holidays?: Holiday[]
 ): PeriodSummary {
-  const days = entries.map((e) => calcDay(e, type, viaticoRate))
+  const days = entries.map((e) => calcDay(e, type, viaticoRate, policy, holidays))
 
   return {
     days,
@@ -136,6 +258,8 @@ export function calcPeriodSummary(
   }
 }
 
+// ── Format helpers ─────────────────────────────────────────────
+
 export function formatTime(time: string): string {
   return time.substring(0, 5)
 }
@@ -144,6 +268,6 @@ export function formatHours(hours: number): string {
   return hours.toFixed(2)
 }
 
-export function formatCurrency(amount: number): string {
-  return `C$${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+export function formatCurrency(amount: number, currency = 'C$'): string {
+  return `${currency}${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 }

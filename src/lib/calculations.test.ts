@@ -9,11 +9,12 @@ import {
   calcScheduledEndTime,
   calcExtraTime,
   generatePeriodDays,
+  calcNightHours,
   formatTime,
   formatHours,
   formatCurrency,
 } from './calculations'
-import type { TimeEntry, EmploymentType } from '@/types'
+import type { TimeEntry, EmploymentType, PolicyConfig, Holiday } from '@/types'
 
 // ── getStandardHours ──────────────────────────────────────────
 
@@ -355,5 +356,133 @@ describe('formatCurrency', () => {
   it('formats with currency symbol and commas', () => {
     expect(formatCurrency(180)).toBe('C$180.00')
     expect(formatCurrency(1500)).toBe('C$1,500.00')
+  })
+
+  it('uses custom currency symbol', () => {
+    expect(formatCurrency(100, 'U$')).toBe('U$100.00')
+  })
+})
+
+// ── calcNightHours ────────────────────────────────────────────
+
+describe('calcNightHours', () => {
+  const NI_NIGHT_START = '19:00'
+  const NI_NIGHT_END = '06:00'
+
+  it('returns 0 for day shift entirely before night window', () => {
+    expect(calcNightHours('08:00', '17:00', NI_NIGHT_START, NI_NIGHT_END)).toBe(0)
+  })
+
+  it('calculates partial night hours when shift enters night window', () => {
+    // 18:00-22:00 = 4h total, 3h in night window (19:00-22:00)
+    expect(calcNightHours('18:00', '22:00', NI_NIGHT_START, NI_NIGHT_END)).toBeCloseTo(3, 2)
+  })
+
+  it('calculates all hours as night when shift is fully within night window', () => {
+    // 20:00-04:00 = 8h, all within 19:00-06:00
+    expect(calcNightHours('20:00', '04:00', NI_NIGHT_START, NI_NIGHT_END)).toBeCloseTo(8, 2)
+  })
+
+  it('handles shift ending after night window ends', () => {
+    // 04:00-08:00 = 4h, 2h in night window (04:00-06:00)
+    expect(calcNightHours('04:00', '08:00', NI_NIGHT_START, NI_NIGHT_END)).toBeCloseTo(2, 2)
+  })
+
+  it('handles shift crossing midnight but starting before night window', () => {
+    // 15:00-02:00 = 11h, 7h in night window (19:00-02:00)
+    expect(calcNightHours('15:00', '02:00', NI_NIGHT_START, NI_NIGHT_END)).toBeCloseTo(7, 2)
+  })
+})
+
+// ── calcDay with surcharges ───────────────────────────────────
+
+describe('calcDay with surcharges', () => {
+  const niPolicy: PolicyConfig = {
+    id: '1',
+    country_id: '1',
+    night_start: '19:00',
+    night_end: '06:00',
+    night_surcharge_pct: 25,
+    sunday_surcharge_pct: 100,
+    holiday_surcharge_pct: 100,
+    extra_threshold_minutes: 15,
+    rounding_block_minutes: 30,
+    currency: 'NIO',
+    multi_entry_enabled: false,
+  }
+
+  const holidays: Holiday[] = [
+    { id: 'h1', country_id: '1', date: '2026-07-19', name: 'Revolución Sandinista' },
+  ]
+
+  const baseEntry: TimeEntry = {
+    id: '1',
+    user_id: 'u1',
+    date: '2026-06-15',
+    start_time: '08:00',
+    end_time: '17:00',
+    concept: 'Trabajo normal',
+    notes: '',
+    created_at: '',
+    updated_at: '',
+  }
+
+  it('calculates regular day without surcharges', () => {
+    const result = calcDay(baseEntry, 'fulltime', 180, niPolicy)
+    expect(result.regular_hours).toBeCloseTo(9, 2) // all regular, no night
+    expect(result.night_hours).toBe(0)
+    expect(result.is_sunday).toBe(false)
+    expect(result.is_holiday).toBe(false)
+  })
+
+  it('calculates night surcharge for evening shift', () => {
+    const nightEntry: TimeEntry = {
+      ...baseEntry,
+      date: '2026-06-15',
+      start_time: '18:00',
+      end_time: '22:00',
+    }
+    const result = calcDay(nightEntry, 'fulltime', 180, niPolicy)
+    // 18:00-22:00 = 4h, 3h in night window (19:00-22:00)
+    expect(result.night_hours).toBeCloseTo(3, 2)
+    expect(result.regular_hours).toBeCloseTo(1, 2)
+    // Night surcharge: 3h * 25% = 0.75h
+    expect(result.night_surcharge).toBeCloseTo(0.75, 2)
+  })
+
+  it('detects Sunday and applies surcharge', () => {
+    // 2026-06-14 is a Sunday
+    const sundayEntry: TimeEntry = {
+      ...baseEntry,
+      date: '2026-06-14',
+      start_time: '08:00',
+      end_time: '17:00',
+    }
+    const result = calcDay(sundayEntry, 'fulltime', 180, niPolicy)
+    expect(result.is_sunday).toBe(true)
+    // Sunday surcharge: 9h * 100% = 9h
+    expect(result.sunday_surcharge).toBeCloseTo(9, 2)
+  })
+
+  it('detects holidays and applies surcharge', () => {
+    const holidayEntry: TimeEntry = {
+      ...baseEntry,
+      date: '2026-07-19',
+      start_time: '08:00',
+      end_time: '17:00',
+    }
+    const result = calcDay(holidayEntry, 'fulltime', 180, niPolicy, holidays)
+    expect(result.is_holiday).toBe(true)
+    expect(result.holiday_name).toBe('Revolución Sandinista')
+    // Holiday surcharge: 9h * 100% = 9h
+    expect(result.holiday_surcharge).toBeCloseTo(9, 2)
+  })
+
+  it('works without policy config (backward compat)', () => {
+    const result = calcDay(baseEntry, 'fulltime', 180)
+    expect(result.regular_hours).toBeCloseTo(9, 2)
+    expect(result.night_hours).toBe(0)
+    expect(result.is_sunday).toBe(false)
+    expect(result.is_holiday).toBe(false)
   })
 })
