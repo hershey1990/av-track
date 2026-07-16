@@ -13,7 +13,7 @@ import { useCreateEntry, useUpdateEntry, useDeleteEntry, useTodayEntries } from 
 import { timeEntrySchema, type TimeEntryFormData } from '../schemas'
 import { calcExtraHours, calcHours, getStandardHours } from '@/lib/calculations'
 import type { EmploymentType, TimeEntry } from '@/types'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Clock } from 'lucide-react'
 
 interface Props {
   userId: string
@@ -108,12 +108,13 @@ export function TimeEntryCard({ userId, profileType }: Props) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
+          <CardTitle className="text-lg font-heading flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
             {editingSlot ? 'Editar entrada' : entries.length === 0 ? 'Registrar entrada' : 'Agregar otro slot'}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormFieldInput control={form.control} name="date" label="Fecha" type="date" />
             <div className="grid grid-cols-2 gap-4">
               <TimeField form={form} name="start_time" label="Entrada" />
@@ -139,7 +140,10 @@ export function TimeEntryCard({ userId, profileType }: Props) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Entrada de hoy</CardTitle>
+        <CardTitle className="text-lg font-heading flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          Entrada de hoy
+        </CardTitle>
         {entries.length > 0 && (
           <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
             <Plus className="h-4 w-4 mr-1" /> Agregar
@@ -148,31 +152,36 @@ export function TimeEntryCard({ userId, profileType }: Props) {
       </CardHeader>
       <CardContent>
         {entries.length === 0 ? (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-3">Sin registros para hoy</p>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-muted mb-3">
+              <Clock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground text-sm mb-4">Sin registros para hoy</p>
             <Button onClick={() => setShowAddForm(true)}>Registrar entrada</Button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {entries.map((entry, idx) => {
               const hours = calcHours(entry.start_time, entry.end_time)
               return (
-                <div key={entry.id} className="flex items-center justify-between p-3 rounded-lg border">
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground font-mono">#{idx + 1}</span>
-                    <span className="font-mono">{entry.start_time.substring(0, 5)}</span>
+                <div key={entry.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
+                  <div className="flex items-center gap-3 sm:gap-4 text-sm">
+                    <span className="flex items-center justify-center h-6 w-6 rounded-full bg-background text-xs font-mono text-muted-foreground border">
+                      {idx + 1}
+                    </span>
+                    <span className="font-mono font-medium">{entry.start_time.substring(0, 5)}</span>
                     <span className="text-muted-foreground">→</span>
-                    <span className="font-mono">{entry.end_time.substring(0, 5)}</span>
-                    <span className="font-medium">{hours.toFixed(2)}h</span>
+                    <span className="font-mono font-medium">{entry.end_time.substring(0, 5)}</span>
+                    <span className="font-heading font-semibold text-base">{hours.toFixed(2)}h</span>
                     {entry.concept && (
-                      <span className="text-muted-foreground truncate max-w-[120px]">{entry.concept}</span>
+                      <span className="text-muted-foreground truncate max-w-[120px] hidden sm:inline">{entry.concept}</span>
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(entry)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(entry)}>
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(entry)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(entry)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -180,11 +189,11 @@ export function TimeEntryCard({ userId, profileType }: Props) {
               )
             })}
             {entries.length > 1 && (
-              <div className="flex justify-end text-sm pt-1 border-t">
-                <span className="text-muted-foreground mr-2">Total hoy:</span>
-                <span className="font-bold">{totalHours.toFixed(2)}h</span>
+              <div className="flex justify-end items-center text-sm pt-2 border-t gap-2">
+                <span className="text-muted-foreground">Total hoy:</span>
+                <span className="font-heading font-semibold text-base">{totalHours.toFixed(2)}h</span>
                 {totalExtra > 0 && (
-                  <span className="text-amber-600 ml-2">(+{totalExtra.toFixed(2)}h extra)</span>
+                  <span className="text-amber-700 font-medium">(+{totalExtra.toFixed(2)}h extra)</span>
                 )}
               </div>
             )}

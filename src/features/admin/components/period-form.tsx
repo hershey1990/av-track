@@ -69,14 +69,14 @@ export function PeriodForm({ userId, onSuccess, period, onCancel }: Props) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
       <FormFieldInput
         control={form.control}
         name="name"
         label="Nombre del período"
         placeholder="Ej: Junio 2026 - Quincena 1"
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <DateField form={form} name="start_date" label="Fecha inicio" />
         <DateField form={form} name="end_date" label="Fecha fin" />
       </div>

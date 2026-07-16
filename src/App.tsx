@@ -22,7 +22,7 @@ function ProtectedLayout() {
   return (
     <AuthGuard>
       <NavBar />
-      <main className="flex-1 w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 py-6">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
     </AuthGuard>
@@ -32,7 +32,7 @@ function ProtectedLayout() {
 function GuestLayout() {
   return (
     <GuestGuard>
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 bg-[radial-gradient(ellipse_at_top,_var(--background)_0%,_var(--muted)_100%)]">
         <Outlet />
       </main>
     </GuestGuard>

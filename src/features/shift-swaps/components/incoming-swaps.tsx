@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Check, X, Repeat, Loader2 } from 'lucide-react'
+import { formatDateShort } from '@/lib/timezone'
 
 export function IncomingSwaps() {
   const { user } = useUser()
@@ -18,20 +19,20 @@ export function IncomingSwaps() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Repeat className="h-4 w-4" />
-          Solicitudes de Cambio Recibidas
+        <CardTitle className="text-lg font-heading flex items-center gap-2">
+          <Repeat className="h-4 w-4 text-muted-foreground" />
+          Cambios recibidos
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {swaps.map((swap) => (
           <div
             key={swap.id}
-            className="flex items-center justify-between p-3 border rounded-lg"
+            className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/20"
           >
             <div className="space-y-1">
               <p className="text-sm font-medium">
-                Cambio para {new Date(swap.date + 'T12:00:00').toLocaleDateString('es-ES')}
+                {formatDateShort(swap.date)}
               </p>
               {swap.reason && (
                 <p className="text-xs text-muted-foreground">{swap.reason}</p>
@@ -42,7 +43,7 @@ export function IncomingSwaps() {
               <Button
                 size="sm"
                 variant="outline"
-                className="text-green-600"
+                className="text-emerald-700 border-emerald-200 hover:bg-emerald-50"
                 onClick={() => respond.mutate({ id: swap.id, status: 'accepted' })}
                 disabled={respond.isPending}
               >
@@ -51,7 +52,7 @@ export function IncomingSwaps() {
               <Button
                 size="sm"
                 variant="outline"
-                className="text-destructive"
+                className="text-destructive border-destructive/20 hover:bg-destructive/10"
                 onClick={() => respond.mutate({ id: swap.id, status: 'rejected' })}
                 disabled={respond.isPending}
               >

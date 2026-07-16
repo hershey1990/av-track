@@ -39,7 +39,7 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
       label: 'Horas hoy',
       value: todayHours !== null ? `${todayHours.toFixed(1)}h` : '—',
       sub: `${getStandardHours(profileType)}h estándar`,
-      color: 'bg-blue-500/10 text-blue-600',
+      color: 'bg-primary/10 text-primary',
     },
     {
       icon: Zap,
@@ -49,21 +49,21 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
         extraHours !== null && extraHours > 0
           ? 'Por encima del estándar'
           : 'Dentro del estándar',
-      color: 'bg-amber-500/10 text-amber-600',
+      color: 'bg-brand-gold/15 text-amber-700',
     },
     {
       icon: Banknote,
       label: 'Viático hoy',
       value: hasViatico ? `C$${viaticoRate.toFixed(0)}` : '—',
       sub: hasViatico ? '¡Aplica!' : 'No aplica',
-      color: 'bg-green-500/10 text-green-600',
+      color: 'bg-emerald-500/10 text-emerald-700',
     },
     {
       icon: CalendarDays,
       label: 'Total período',
       value: periodTotalHours !== undefined ? `${periodTotalHours.toFixed(1)}h` : '—',
       sub: 'Período activo',
-      color: 'bg-purple-500/10 text-purple-600',
+      color: 'bg-slate-500/10 text-slate-700',
     },
     {
       icon: Timer,
@@ -74,26 +74,29 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
       sub: periodTotalExtraHours !== undefined && periodTotalExtraHours > 0
         ? 'Total horas extra'
         : 'Sin horas extra',
-      color: 'bg-red-500/10 text-red-600',
-      fullWidth: true,
+      color: 'bg-rose-500/10 text-rose-700',
     },
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {kpis.map((kpi) => (
-        <Card key={kpi.label} className={kpi.fullWidth ? 'col-span-2 sm:col-span-1' : ''}>
-          <CardContent className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+        <Card key={kpi.label}>
+          <CardContent className="p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {kpi.label}
+              </span>
               <div
-                className={`flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-lg shrink-0 ${kpi.color}`}
+                className={`flex items-center justify-center h-8 w-8 rounded-lg shrink-0 ${kpi.color}`}
               >
-                <kpi.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <kpi.icon className="h-4 w-4" />
               </div>
-              <span className="text-xs text-muted-foreground truncate">{kpi.label}</span>
             </div>
-            <span className="text-xl sm:text-2xl font-bold tracking-tight">{kpi.value}</span>
-            <span className="text-[11px] sm:text-xs text-muted-foreground leading-tight">
+            <span className="text-2xl sm:text-3xl font-heading font-semibold tracking-tight">
+              {kpi.value}
+            </span>
+            <span className="text-xs text-muted-foreground leading-tight">
               {kpi.sub}
             </span>
           </CardContent>

@@ -1,6 +1,7 @@
 'use client'
 
 import { Link, useLocation } from 'react-router-dom'
+import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -29,65 +30,59 @@ export function NavBar() {
 
   const initials = profile?.full_name?.substring(0, 2).toUpperCase() ?? 'U'
 
+  const navItems = [
+    { path: '/', label: 'Hoy', icon: Home },
+    { path: '/history', label: 'Historial', icon: History },
+    { path: '/report', label: 'Reportes', icon: FileText },
+    ...(profile?.role === 'admin' ? [{ path: '/admin', label: 'Admin', icon: Shield }] : []),
+  ]
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4 max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <Link to="/" className="flex items-center">
-          <span className="flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground font-bold text-xs">AV</span>
+          <BrandLogo size="md" showWordmark />
         </Link>
 
-        <nav className="flex items-center gap-1">
-          <Link to="/">
-            <Button variant={isActive('/') ? 'default' : 'ghost'} size="sm" className="gap-1.5">
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Hoy</span>
-            </Button>
-          </Link>
+        <nav className="flex items-center gap-1 sm:gap-2">
+          {navItems.map((item) => {
+            const active = isActive(item.path)
+            return (
+              <Link key={item.path} to={item.path}>
+                <Button
+                  variant={active ? 'default' : 'ghost'}
+                  size="sm"
+                  className="gap-1.5"
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{item.label}</span>
+                </Button>
+              </Link>
+            )
+          })}
 
           <NotificationBell />
 
           <DropdownMenu>
             <DropdownMenuTrigger className="ml-1 cursor-pointer">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+              <Avatar className="h-8 w-8 border border-border/60">
+                <AvatarFallback className="text-xs font-heading font-semibold">{initials}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-44">
-              <div className="flex items-center gap-2 px-2 py-2">
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+            <DropdownMenuContent align="end" className="min-w-52">
+              <div className="flex items-center gap-3 px-2 py-3">
+                <Avatar className="h-8 w-8 border border-border/60">
+                  <AvatarFallback className="text-[10px] font-heading font-semibold">{initials}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-foreground truncate">
-                  {profile?.full_name ?? 'Usuario'}
-                </span>
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-sm font-medium text-foreground truncate">
+                    {profile?.full_name ?? 'Usuario'}
+                  </span>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {profile?.role ?? 'usuario'}
+                  </span>
+                </div>
               </div>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem>
-                <Link to="/history" className="flex items-center gap-2 w-full">
-                  <History className="h-4 w-4" />
-                  Historial
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/report" className="flex items-center gap-2 w-full">
-                  <FileText className="h-4 w-4" />
-                  Reportes
-                </Link>
-              </DropdownMenuItem>
-
-              {profile?.role === 'admin' && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link to="/admin" className="flex items-center gap-2 w-full">
-                      <Shield className="h-4 w-4" />
-                      Admin
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              )}
 
               <DropdownMenuSeparator />
 

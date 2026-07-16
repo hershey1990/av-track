@@ -7,7 +7,6 @@ import { DayRow } from '@/features/time-entries/components/day-row'
 import { usePeriods } from '@/features/reports/hooks/use-periods'
 import { ExcelExport } from '@/features/reports/components/excel-export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDateFull } from '@/lib/timezone'
 import { calcPeriodSummary, generatePeriodDays } from '@/lib/calculations'
@@ -49,33 +48,39 @@ export default function UserEntriesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Entradas de {targetProfile?.full_name ?? '...'}</h1>
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">
+        Entradas de {targetProfile?.full_name ?? '...'}
+      </h1>
 
-      <div className="space-y-2">
-        <Label>Seleccionar período</Label>
-        <Select value={selectedPeriodId ?? undefined} onValueChange={setSelectedPeriodId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Elegí un período..." />
-          </SelectTrigger>
-          <SelectContent>
-            {periods?.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name} {p.is_locked ? '(🔒)' : ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-heading">Seleccionar período</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Select value={selectedPeriodId ?? undefined} onValueChange={setSelectedPeriodId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Elegí un período..." />
+            </SelectTrigger>
+            <SelectContent>
+              {periods?.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name} {p.is_locked ? '(🔒)' : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      {selectedPeriod && (
-        <p className="text-sm text-muted-foreground">
-          {formatDateFull(selectedPeriod.start_date)} — {formatDateFull(selectedPeriod.end_date)}
-        </p>
-      )}
+          {selectedPeriod && (
+            <p className="text-sm text-muted-foreground">
+              {formatDateFull(selectedPeriod.start_date)} — {formatDateFull(selectedPeriod.end_date)}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Registros</CardTitle>
+          <CardTitle className="text-lg font-heading">Registros</CardTitle>
           {allPeriodDays && targetProfile && selectedPeriod && summary && (
             <ExcelExport
               days={allPeriodDays}

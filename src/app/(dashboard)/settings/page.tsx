@@ -9,8 +9,8 @@ export default function SettingsPage() {
   if (!user) return null
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Ajustes</h1>
+    <div className="space-y-6 max-w-2xl">
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">Ajustes</h1>
       <ProfileForm userId={user.id} />
     </div>
   )
