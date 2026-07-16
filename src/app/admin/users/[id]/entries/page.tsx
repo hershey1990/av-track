@@ -31,7 +31,7 @@ export default function UserEntriesPage({ params }: { params: Promise<{ id: stri
         <CardHeader>
           <CardTitle className="text-lg">Registros</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {entries && entries.length > 0 ? (
             <Table>
               <TableHeader>

@@ -22,7 +22,8 @@ export function PeriodSummaryTable({ entries, type, viaticoRate }: Props) {
   )
 
   return (
-    <Table>
+    <div className="overflow-x-auto">
+      <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Fecha</TableHead>
@@ -62,6 +63,7 @@ export function PeriodSummaryTable({ entries, type, viaticoRate }: Props) {
           <TableCell>{formatCurrency(summary.total_viatico)}</TableCell>
         </TableRow>
       </TableBody>
-    </Table>
+      </Table>
+    </div>
   )
 }

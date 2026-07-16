@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { Clock, Zap, Banknote, CalendarDays, Timer } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { useTodayEntry } from '@/features/time-entries/hooks/use-entries'
+import { useTodayEntries } from '@/features/time-entries/hooks/use-entries'
 import { calcHours, calcExtraHours, calcViatico, getStandardHours } from '@/lib/calculations'
 import type { EmploymentType } from '@/types'
 
@@ -16,12 +16,12 @@ interface Props {
 }
 
 export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTotalHours, periodTotalExtraHours }: Props) {
-  const { data: todayEntry } = useTodayEntry(userId)
+  const { data: todayEntries = [] } = useTodayEntries(userId)
 
   const todayHours = useMemo(() => {
-    if (!todayEntry) return null
-    return calcHours(todayEntry.start_time, todayEntry.end_time)
-  }, [todayEntry])
+    if (todayEntries.length === 0) return null
+    return todayEntries.reduce((sum, entry) => sum + calcHours(entry.start_time, entry.end_time), 0)
+  }, [todayEntries])
 
   const extraHours = useMemo(() => {
     if (todayHours === null) return null
@@ -80,9 +80,9 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
       {kpis.map((kpi) => (
-        <Card key={kpi.label} className={kpi.fullWidth ? 'col-span-2' : ''}>
+        <Card key={kpi.label} className={kpi.fullWidth ? 'col-span-2 sm:col-span-1' : ''}>
           <CardContent className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div

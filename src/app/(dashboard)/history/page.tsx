@@ -40,7 +40,7 @@ export default function HistoryPage() {
         <CardHeader>
           <CardTitle className="text-lg">Registros</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
             <p className="p-4 text-muted-foreground">Cargando...</p>
           ) : entries && entries.length > 0 ? (

@@ -11,6 +11,7 @@ import { Home, History, FileText, Settings, Shield, LogOut } from 'lucide-react'
 import { signOut } from '@/features/auth/api'
 import { useProfile } from '@/hooks/use-profile'
 import { useUser } from '@/hooks/use-user'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
 
 export function NavBar() {
   const { pathname } = useLocation()
@@ -30,7 +31,7 @@ export function NavBar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4 max-w-lg mx-auto">
+      <div className="flex h-14 items-center justify-between px-4 max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto">
         <Link to="/" className="flex items-center">
           <span className="flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground font-bold text-xs">AV</span>
         </Link>
@@ -42,6 +43,8 @@ export function NavBar() {
               <span className="hidden sm:inline">Hoy</span>
             </Button>
           </Link>
+
+          <NotificationBell />
 
           <DropdownMenu>
             <DropdownMenuTrigger className="ml-1 cursor-pointer">

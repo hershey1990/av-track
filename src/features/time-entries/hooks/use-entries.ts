@@ -22,6 +22,14 @@ export function useTodayEntry(userId: string | undefined) {
   })
 }
 
+export function useTodayEntries(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['time-entries', 'today', 'all', userId],
+    queryFn: () => api.getTodayEntries(userId!),
+    enabled: !!userId,
+  })
+}
+
 export function useCreateEntry() {
   const queryClient = useQueryClient()
   return useMutation({

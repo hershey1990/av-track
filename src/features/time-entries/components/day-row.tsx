@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,6 +19,7 @@ import { dayRowSchema, type DayRowFormData } from '../schemas'
 interface Props {
   entry: TimeEntry
   profileType?: EmploymentType
+  slotCount?: number
 }
 
 function TimeField({ form, name, label }: {
@@ -83,7 +82,7 @@ function NotesField({ form }: { form: ReturnType<typeof useForm<DayRowFormData>>
   )
 }
 
-export function DayRow({ entry, profileType = 'fulltime' }: Props) {
+export function DayRow({ entry, profileType = 'fulltime', slotCount }: Props) {
   const [open, setOpen] = useState(false)
   const updateEntry = useUpdateEntry()
   const deleteEntry = useDeleteEntry()
@@ -121,7 +120,16 @@ export function DayRow({ entry, profileType = 'fulltime' }: Props) {
 
   return (
     <TableRow>
-      <TableCell>{formatDateShort(entry.date)}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1.5">
+          <span>{formatDateShort(entry.date)}</span>
+          {slotCount && slotCount > 1 && (
+            <Badge variant="outline" className="text-[10px] h-4 px-1">
+              #{entry.slot_index != null ? entry.slot_index + 1 : slotCount}
+            </Badge>
+          )}
+        </div>
+      </TableCell>
       <TableCell>{entry.start_time.substring(0, 5)}</TableCell>
       <TableCell>{entry.end_time.substring(0, 5)}</TableCell>
       <TableCell className="font-medium">{hours.toFixed(2)}h</TableCell>

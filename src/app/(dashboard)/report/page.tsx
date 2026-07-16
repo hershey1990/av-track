@@ -7,6 +7,8 @@ import { usePeriods } from '@/features/reports/hooks/use-periods'
 import { usePeriodEntries } from '@/features/time-entries/hooks/use-entries'
 import { PeriodSummaryTable } from '@/features/reports/components/period-summary'
 import { ExcelExport } from '@/features/reports/components/excel-export'
+import { PdfExport } from '@/features/reports/components/pdf-export'
+import { ApprovalPanel } from '@/features/reports/components/approval-panel'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -67,11 +69,18 @@ export default function ReportPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">{selectedPeriod.name}</CardTitle>
-              <ExcelExport
-                days={allPeriodDays!}
-                period={selectedPeriod}
-                profile={profile}
-              />
+              <div className="flex gap-2">
+                <ExcelExport
+                  days={allPeriodDays!}
+                  period={selectedPeriod}
+                  profile={profile}
+                />
+                <PdfExport
+                  days={allPeriodDays!}
+                  period={selectedPeriod}
+                  profile={profile}
+                />
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <PeriodSummaryTable
@@ -81,6 +90,7 @@ export default function ReportPage() {
               />
             </CardContent>
           </Card>
+          <ApprovalPanel period={selectedPeriod} />
         </>
       )}
 

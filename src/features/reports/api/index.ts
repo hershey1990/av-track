@@ -41,3 +41,31 @@ export async function updatePeriod(id: string, values: Partial<PeriodFormData & 
   const { error } = await supabase.from('periods').update(values).eq('id', id)
   if (error) throw error
 }
+
+export async function approvePeriod(id: string, userId: string, note?: string): Promise<void> {
+  const supabase = getSupabase()
+  const { error } = await supabase
+    .from('periods')
+    .update({
+      approval_status: 'approved',
+      approved_by: userId,
+      approved_at: new Date().toISOString(),
+      approval_note: note || null,
+    })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function rejectPeriod(id: string, userId: string, note?: string): Promise<void> {
+  const supabase = getSupabase()
+  const { error } = await supabase
+    .from('periods')
+    .update({
+      approval_status: 'rejected',
+      approved_by: userId,
+      approved_at: new Date().toISOString(),
+      approval_note: note || null,
+    })
+    .eq('id', id)
+  if (error) throw error
+}
