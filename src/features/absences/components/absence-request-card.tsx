@@ -9,6 +9,7 @@ import { FormFieldSelect } from '@/components/ui/form-field-select'
 import { useCreateAbsence } from '../hooks/use-absences'
 import { absenceSchema, type AbsenceFormData } from '../schemas'
 import { useState } from 'react'
+import { CalendarDays } from 'lucide-react'
 
 interface Props {
   userId: string
@@ -41,7 +42,10 @@ export function AbsenceRequestCard({ userId, onSuccess }: Props) {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Ausencias</CardTitle>
+          <CardTitle className="text-lg font-heading flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            Ausencias
+          </CardTitle>
           <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
             Solicitar
           </Button>
@@ -58,10 +62,13 @@ export function AbsenceRequestCard({ userId, onSuccess }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Solicitar ausencia</CardTitle>
+        <CardTitle className="text-lg font-heading flex items-center gap-2">
+          <CalendarDays className="h-4 w-4 text-muted-foreground" />
+          Solicitar ausencia
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormFieldSelect
             control={form.control}
             name="type"

@@ -26,25 +26,31 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Panel Admin</h1>
-      <AdminAbsenceList />
-      <PeriodList />
-      <UserList />
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Configuración</CardTitle>
-          <Link to="/admin/policy">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Settings className="h-4 w-4" /> Gestionar
-            </Button>
-          </Link>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Política de recargos, entradas múltiples y configuración de horas nocturnas.
-          </p>
-        </CardContent>
-      </Card>
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">Panel Admin</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <AdminAbsenceList />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg font-heading">Configuración</CardTitle>
+              <Link to="/admin/policy">
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Settings className="h-4 w-4" /> Gestionar
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Política de recargos, entradas múltiples y configuración de horas nocturnas.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="space-y-6">
+          <PeriodList />
+          <UserList />
+        </div>
+      </div>
     </div>
   );
 }

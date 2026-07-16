@@ -10,7 +10,6 @@ import { ExcelExport } from '@/features/reports/components/excel-export'
 import { PdfExport } from '@/features/reports/components/pdf-export'
 import { ApprovalPanel } from '@/features/reports/components/approval-panel'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { calcPeriodSummary, generatePeriodDays } from '@/lib/calculations'
 import { formatDateFull } from '@/lib/timezone'
@@ -39,36 +38,40 @@ export default function ReportPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Reportes</h1>
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">Reportes</h1>
 
-      <div className="space-y-2">
-        <Label>Seleccionar período</Label>
-        <Select value={selectedPeriodId} onValueChange={setSelectedPeriodId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Elegí un período..." />
-          </SelectTrigger>
-          <SelectContent>
-            {periods?.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name} {p.is_locked ? '(🔒)' : ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-heading">Seleccionar período</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Select value={selectedPeriodId ?? undefined} onValueChange={setSelectedPeriodId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Elegí un período..." />
+            </SelectTrigger>
+            <SelectContent>
+              {periods?.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name} {p.is_locked ? '(🔒)' : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      {selectedPeriod && (
-        <p className="text-sm text-muted-foreground">
-          {formatDateFull(selectedPeriod.start_date)} —{' '}
-          {formatDateFull(selectedPeriod.end_date)}
-        </p>
-      )}
+          {selectedPeriod && (
+            <p className="text-sm text-muted-foreground">
+              {formatDateFull(selectedPeriod.start_date)} —{' '}
+              {formatDateFull(selectedPeriod.end_date)}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {entries && profile && selectedPeriod && summary && (
         <>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">{selectedPeriod.name}</CardTitle>
+              <CardTitle className="text-lg font-heading">{selectedPeriod.name}</CardTitle>
               <div className="flex gap-2">
                 <ExcelExport
                   days={allPeriodDays!}

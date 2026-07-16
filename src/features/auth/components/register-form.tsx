@@ -29,12 +29,12 @@ export function RegisterForm() {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Registrarse</CardTitle>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-heading tracking-tight">Registrarse</CardTitle>
         <CardDescription>Creá tu cuenta para empezar</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormFieldInput
             control={form.control}
             name="full_name"
@@ -64,7 +64,7 @@ export function RegisterForm() {
           {form.formState.errors.root && (
             <FieldError errors={[form.formState.errors.root]} />
           )}
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Registrando...' : 'Registrarse'}
           </Button>
         </form>

@@ -130,9 +130,9 @@ export function DayRow({ entry, profileType = 'fulltime', slotCount }: Props) {
           )}
         </div>
       </TableCell>
-      <TableCell>{entry.start_time.substring(0, 5)}</TableCell>
-      <TableCell>{entry.end_time.substring(0, 5)}</TableCell>
-      <TableCell className="font-medium">{hours.toFixed(2)}h</TableCell>
+      <TableCell className="font-mono">{entry.start_time.substring(0, 5)}</TableCell>
+      <TableCell className="font-mono">{entry.end_time.substring(0, 5)}</TableCell>
+      <TableCell className="font-heading font-medium">{hours.toFixed(2)}h</TableCell>
       <TableCell className="max-w-[120px] truncate">{entry.concept}</TableCell>
       <TableCell>
         <Badge variant={hours >= 7 ? 'default' : 'secondary'}>

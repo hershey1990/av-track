@@ -4,7 +4,6 @@ import { useUser } from '@/hooks/use-user'
 import { useProfile } from '@/hooks/use-profile'
 import { usePolicyConfig, useUpdatePolicyConfig } from '@/features/admin/hooks/use-policy-config'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 
@@ -23,11 +22,11 @@ export default function AdminPolicyPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Configuración de política</h1>
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">Configuración de política</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Entradas múltiples</CardTitle>
+          <CardTitle className="text-lg font-heading">Entradas múltiples</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">

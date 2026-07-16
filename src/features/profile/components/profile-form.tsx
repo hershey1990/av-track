@@ -34,10 +34,10 @@ export function ProfileForm({ userId }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mi Perfil</CardTitle>
+        <CardTitle className="text-lg font-heading">Mi Perfil</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormFieldInput
             control={form.control}
             name="full_name"

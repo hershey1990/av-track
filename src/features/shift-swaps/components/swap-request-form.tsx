@@ -5,6 +5,7 @@ import { useUser } from '@/hooks/use-user'
 import { useCreateSwapRequest } from '../hooks/use-shift-swaps'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Loader2, Repeat } from 'lucide-react'
 
 interface Props {
@@ -42,46 +43,44 @@ export function SwapRequestForm({ onSuccess }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Repeat className="h-4 w-4" />
-          Solicitar Cambio de Turno
+        <CardTitle className="text-lg font-heading flex items-center gap-2">
+          <Repeat className="h-4 w-4 text-muted-foreground" />
+          Solicitar cambio
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
             <label className="text-sm font-medium">ID del compañero</label>
-            <input
+            <Input
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
               placeholder="UUID del usuario"
               required
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-sm font-medium">Fecha del cambio</label>
-            <input
+            <Input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-sm font-medium">Motivo (opcional)</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="¿Por qué necesitas el cambio?"
               rows={2}
-              className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </div>
           <Button type="submit" disabled={createSwap.isPending}>
             {createSwap.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Enviar Solicitud
+            Enviar solicitud
           </Button>
         </form>
       </CardContent>

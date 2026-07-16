@@ -30,9 +30,9 @@ export default function DashboardPage() {
   if (!user) return null
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl sm:text-4xl font-heading font-semibold tracking-tight">
           {profile?.full_name ? `Hola, ${profile.full_name}` : 'Dashboard'}
         </h1>
         <p className="text-muted-foreground text-sm">
@@ -49,27 +49,34 @@ export default function DashboardPage() {
             periodTotalHours={summary?.total_hours}
             periodTotalExtraHours={summary?.total_extra_hours}
           />
-          <TimeEntryCard userId={user.id} profileType={profile.type} />
-          <AbsenceRequestCard userId={user.id} />
-          <AbsenceList userId={user.id} />
-          <IncomingSwaps />
-          <SwapRequestForm />
-        </>
-      )}
 
-      {activePeriod && entries && profile && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Resumen del período</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <PeriodSummaryTable
-              entries={entries}
-              type={profile.type}
-              viaticoRate={profile.viatico}
-            />
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <TimeEntryCard userId={user.id} profileType={profile.type} />
+              {activePeriod && entries && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-heading">Resumen del período</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <PeriodSummaryTable
+                      entries={entries}
+                      type={profile.type}
+                      viaticoRate={profile.viatico}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              <AbsenceRequestCard userId={user.id} />
+              <AbsenceList userId={user.id} />
+              <IncomingSwaps />
+              <SwapRequestForm />
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

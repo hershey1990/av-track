@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { RegisterForm } from '@/features/auth/components/register-form'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function RegisterPage() {
   return (
     <div className="w-full flex flex-col items-center gap-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">AV Time Tracking</h1>
-        <p className="text-muted-foreground mt-1">Creá tu cuenta</p>
+        <BrandLogo size="lg" className="justify-center" />
+        <p className="text-muted-foreground mt-2 text-sm tracking-wide uppercase">Creá tu cuenta</p>
       </div>
       <RegisterForm />
       <p className="text-sm text-muted-foreground">

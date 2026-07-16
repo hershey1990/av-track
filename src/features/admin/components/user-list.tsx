@@ -9,7 +9,7 @@ export function UserList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Usuarios</CardTitle>
+        <CardTitle className="text-lg font-heading">Usuarios</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {isLoading && <p className="text-muted-foreground text-sm">Cargando...</p>}
@@ -19,7 +19,7 @@ export function UserList() {
         )}
         {profiles?.map((p) => (
           <Link key={p.id} to={`/admin/users/${p.id}`}>
-            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer text-sm">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20 hover:bg-muted/40 cursor-pointer text-sm transition-colors">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{p.full_name}</span>
                 <Badge
@@ -28,7 +28,7 @@ export function UserList() {
                   {p.type === "fulltime" ? "FT" : "PT"}
                 </Badge>
               </div>
-              <Badge variant={p.role === "admin" ? "outline" : "ghost"}>
+              <Badge variant={p.role === "admin" ? "outline" : "ghost"} className="capitalize">
                 {p.role}
               </Badge>
             </div>

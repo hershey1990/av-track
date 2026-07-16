@@ -45,18 +45,18 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{targetProfile.full_name}</h1>
-        <Badge>{targetProfile.role}</Badge>
+        <h1 className="text-3xl font-heading font-semibold tracking-tight">{targetProfile.full_name}</h1>
+        <Badge variant="outline" className="capitalize">{targetProfile.role}</Badge>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Editar usuario</CardTitle>
+          <CardTitle className="text-lg font-heading">Editar usuario</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormFieldInput control={form.control} name="full_name" label="Nombre" />
             <FormFieldInput control={form.control} name="employee_code" label="Código Empleado" />
             <FormFieldSelect

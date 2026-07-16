@@ -25,12 +25,12 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-heading tracking-tight">Iniciar Sesión</CardTitle>
         <CardDescription>Ingresá tu email y contraseña</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormFieldInput
             control={form.control}
             name="email"
@@ -46,7 +46,7 @@ export function LoginForm() {
           {form.formState.errors.root && (
             <FieldError errors={[form.formState.errors.root]} />
           )}
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Ingresando...' : 'Ingresar'}
           </Button>
         </form>

@@ -23,22 +23,29 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Historial</h1>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <Label>Desde</Label>
-          <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </div>
-        <div className="space-y-1">
-          <Label>Hasta</Label>
-          <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-        </div>
-      </div>
+      <h1 className="text-3xl font-heading font-semibold tracking-tight">Historial</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Registros</CardTitle>
+          <CardTitle className="text-lg font-heading">Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Desde</Label>
+              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Hasta</Label>
+              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-heading">Registros</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
