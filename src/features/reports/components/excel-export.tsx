@@ -11,6 +11,7 @@ interface Props {
   days: DayCalculation[]
   period: Period
   profile: Profile
+  fileName?: string
 }
 
 const SPANISH_MONTHS = [
@@ -43,7 +44,7 @@ const HEADER_FILL: ExcelJS.Fill = {
   fgColor: { argb: 'FFD9D9D9' },
 }
 
-export function ExcelExport({ days, period, profile }: Props) {
+export function ExcelExport({ days, period, profile, fileName }: Props) {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook()
     const sheet = workbook.addWorksheet(period.name)
@@ -203,7 +204,7 @@ export function ExcelExport({ days, period, profile }: Props) {
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     })
-    saveAs(blob, `${period.name.replace(/\s+/g, '_')}.xlsx`)
+    saveAs(blob, fileName ?? `${period.name.replace(/\s+/g, '_')}.xlsx`)
   }
 
   return (

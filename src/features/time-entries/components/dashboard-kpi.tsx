@@ -80,9 +80,9 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
       {kpis.map((kpi) => (
-        <Card key={kpi.label} className={kpi.fullWidth ? 'col-span-2' : ''}>
+        <Card key={kpi.label} className={kpi.fullWidth ? 'col-span-2 sm:col-span-1' : ''}>
           <CardContent className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div

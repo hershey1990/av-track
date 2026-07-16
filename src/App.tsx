@@ -22,7 +22,7 @@ function ProtectedLayout() {
   return (
     <AuthGuard>
       <NavBar />
-      <main className="flex-1 w-full max-w-lg mx-auto px-4 py-6">
+      <main className="flex-1 w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 py-6">
         <Outlet />
       </main>
     </AuthGuard>
