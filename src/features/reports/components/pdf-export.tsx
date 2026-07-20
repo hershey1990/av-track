@@ -68,8 +68,9 @@ export function PdfExport({ days, period, profile }: Props) {
       'DIA',
       'ENTRADA',
       'SALIDA',
+      'SALIDA REAL',
       'EXTRAS',
-      'MOTIVO',
+      'MOTIVO HORAS EXTRAS',
       'FIRMA SUPERVISOR',
       'VIATICO',
     ]
@@ -85,13 +86,13 @@ export function PdfExport({ days, period, profile }: Props) {
 
       if (isOff) {
         const dayNum = new Date(day.date + 'T12:00:00').getDate()
-        rows.push([dayNum, 'Off', 'Off', 'Off', 'Off', 'Off', 'Off'])
+        rows.push([dayNum, 'Off', 'Off', 'Off', 'Off', 'Off', 'Off', 'Off'])
         continue
       }
 
       if (isFeriado) {
         const dayNum = new Date(day.date + 'T12:00:00').getDate()
-        rows.push([dayNum, formatTime(day.start_time), { content: 'Feriado Nacional', colSpan: 5 }])
+        rows.push([dayNum, formatTime(day.start_time), { content: 'Feriado Nacional', colSpan: 6 }])
         feriadoMinutes += day.hours * 60
         workingDays++
         continue
@@ -101,6 +102,7 @@ export function PdfExport({ days, period, profile }: Props) {
       rows.push([
         dayNum,
         formatTime(day.start_time),
+        day.scheduled_end_time,
         formatTime(day.end_time),
         day.extra_time,
         day.concept || '-',
@@ -119,6 +121,8 @@ export function PdfExport({ days, period, profile }: Props) {
       styles: {
         fontSize: 8,
         cellPadding: 2,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.2,
       },
       headStyles: {
         fillColor: [200, 200, 200],
@@ -129,10 +133,19 @@ export function PdfExport({ days, period, profile }: Props) {
         0: { halign: 'center', cellWidth: 15 },
         1: { halign: 'center', cellWidth: 25 },
         2: { halign: 'center', cellWidth: 25 },
-        3: { halign: 'center', cellWidth: 20 },
-        4: { cellWidth: 45 },
+        3: { halign: 'center', cellWidth: 25 },
+        4: { halign: 'center', cellWidth: 20 },
         5: { cellWidth: 45 },
-        6: { halign: 'center', cellWidth: 18 },
+        6: { cellWidth: 45 },
+        7: { halign: 'center', cellWidth: 18 },
+      },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.column.index === 3) {
+          data.cell.styles.fillColor = [248, 203, 173]
+        }
+        if (data.section === 'body' && (data.column.index === 4 || data.column.index === 7)) {
+          data.cell.styles.fillColor = [217, 217, 217]
+        }
       },
     })
 
