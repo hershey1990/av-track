@@ -6,6 +6,7 @@ import { usePeriodEntries } from '@/features/time-entries/hooks/use-entries'
 import { DayRow } from '@/features/time-entries/components/day-row'
 import { usePeriods } from '@/features/reports/hooks/use-periods'
 import { ExcelExport } from '@/features/reports/components/excel-export'
+import { PdfExport } from '@/features/reports/components/pdf-export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDateFull } from '@/lib/timezone'
@@ -82,12 +83,19 @@ export default function UserEntriesPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg font-heading">Registros</CardTitle>
           {allPeriodDays && targetProfile && selectedPeriod && summary && (
-            <ExcelExport
-              days={allPeriodDays}
-              period={selectedPeriod}
-              profile={targetProfile}
-              fileName={`${targetProfile.full_name.trim().replace(/\s+/g, '_')}_${selectedPeriod.name.trim().replace(/\s+/g, '_')}.xlsx`}
-            />
+            <div className="flex gap-2">
+              <ExcelExport
+                days={allPeriodDays}
+                period={selectedPeriod}
+                profile={targetProfile}
+                fileName={`${targetProfile.full_name.trim().replace(/\s+/g, '_')}_${selectedPeriod.name.trim().replace(/\s+/g, '_')}.xlsx`}
+              />
+              <PdfExport
+                days={allPeriodDays}
+                period={selectedPeriod}
+                profile={targetProfile}
+              />
+            </div>
           )}
         </CardHeader>
         <CardContent className="p-0">

@@ -20,6 +20,7 @@ export function useProfile(userId: string | undefined) {
     queryKey: ['profile', userId],
     queryFn: () => getProfile(userId!),
     enabled: !!userId,
+    refetchOnMount: 'always',
   })
 }
 

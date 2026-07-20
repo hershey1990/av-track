@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { FileDown } from 'lucide-react'
 import * as ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
-import { formatTime } from '@/lib/calculations'
+import { calcExtraTime, calcScheduledEndTime, formatTime } from '@/lib/calculations'
 import type { DayCalculation, Period, Profile } from '@/types'
 
 interface Props {
@@ -24,6 +24,25 @@ function formatPeriodDate(dateStr: string): string {
   const day = d.getDate()
   const month = SPANISH_MONTHS[d.getMonth()]
   return `${day} ${month}`
+}
+
+function formatDayMonth(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00')
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+async function loadImageDataUrl(src: string): Promise<string> {
+  const response = await fetch(src)
+  if (!response.ok) {
+    throw new Error(`Unable to load image: ${src}`)
+  }
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(reader.error ?? new Error(`Unable to read image: ${src}`))
+    reader.readAsDataURL(blob)
+  })
 }
 
 function extraTimeToMinutes(extraTime: string): number {
@@ -68,47 +87,65 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook()
     const sheet = workbook.addWorksheet(period.name)
+    const logoDataUrl = await loadImageDataUrl('/avianca-logo.png')
+    const logoImageId = workbook.addImage({ base64: logoDataUrl, extension: 'png' })
 
     // Column widths
-    sheet.getColumn(1).width = 8
+    // Excel column widths use character units; 24 is approximately 170 px.
+    sheet.getColumn(1).width = 24
     sheet.getColumn(2).width = 12
     sheet.getColumn(3).width = 12
     sheet.getColumn(4).width = 14
     sheet.getColumn(5).width = 10
     sheet.getColumn(6).width = 22
     sheet.getColumn(7).width = 22
-    sheet.getColumn(8).width = 12
+    sheet.getColumn(8).width = 16
 
     // ── Header section ──────────────────────────────────────
 
-    // Row 1: Title
-    sheet.mergeCells('A1:H1')
+    // Row 1-3: Title and logo
+    sheet.mergeCells('A1:F3')
+    sheet.mergeCells('G1:H6')
     const titleCell = sheet.getCell('A1')
     titleCell.value = 'REPORTE HORAS EXTRAS AEROPUERTO MGA'
     titleCell.font = { bold: true, size: 14 }
-    titleCell.alignment = { horizontal: 'center' }
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
+    for (let row = 1; row <= 3; row++) {
+      for (let column = 1; column <= 6; column++) {
+        const cell = sheet.getCell(row, column)
+        cell.fill = HEADER_FILL
+        cell.border = TABLE_BORDER
+      }
+    }
 
-    // Row 2: COLABORADOR
-    sheet.getCell('A2').value = 'COLABORADOR'
-    sheet.getCell('A2').font = { bold: true }
-    sheet.mergeCells('B2:H2')
-    sheet.getCell('B2').value = profile.full_name
-
-    // Row 3: CODIGO EMPLEADO
-    sheet.getCell('A3').value = 'CODIGO EMPLEADO'
-    sheet.getCell('A3').font = { bold: true }
-    sheet.mergeCells('B3:H3')
-    sheet.getCell('B3').value = profile.employee_code || ''
-
-    // Row 4: QUINCENAS
-    sheet.getCell('A4').value = 'QUINCENAS'
+    // Rows 4-6: Report information
+    sheet.getCell('A4').value = 'COLABORADOR'
     sheet.getCell('A4').font = { bold: true }
-    sheet.mergeCells('B4:H4')
-    sheet.getCell('B4').value = `${formatPeriodDate(period.start_date)} - ${formatPeriodDate(period.end_date)}`
+    sheet.mergeCells('B4:F4')
+    sheet.getCell('B4').value = profile.full_name
 
-    // Row 5: empty
-    // Row 6: Table headers
-    const headerRow = sheet.getRow(6)
+    sheet.getCell('A5').value = 'CODIGO EMPLEADO'
+    sheet.getCell('A5').font = { bold: true }
+    sheet.mergeCells('B5:F5')
+    sheet.getCell('B5').value = profile.employee_code || ''
+
+    sheet.getCell('A6').value = 'QUINCENAS'
+    sheet.getCell('A6').font = { bold: true }
+    sheet.mergeCells('B6:F6')
+    sheet.getCell('B6').value = `${formatPeriodDate(period.start_date)} - ${formatPeriodDate(period.end_date)}`
+    for (let row = 4; row <= 6; row++) {
+      for (let column = 1; column <= 6; column++) {
+        sheet.getCell(row, column).border = TABLE_BORDER
+      }
+    }
+    sheet.getCell('G1').border = TABLE_BORDER
+    sheet.addImage(logoImageId, {
+      tl: { col: 6.1, row: 0.15 },
+      ext: { width: 190, height: 92 },
+    })
+
+    // Row 8: Table headers
+    const headerRow = sheet.getRow(8)
     const headers = [
       'DIA',
       'ENTRADA',
@@ -130,10 +167,9 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
 
     // ── Data rows ───────────────────────────────────────────
 
-    let rowNum = 7
+    let rowNum = 9
     let totalExtraMinutes = 0
     let feriadoMinutes = 0
-    let workingDays = 0
 
     for (const day of days) {
       const isOff = day.concept === 'Off'
@@ -141,7 +177,8 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
 
       if (isOff) {
         const row = sheet.getRow(rowNum)
-        row.getCell(1).value = new Date(day.date + 'T12:00:00').getDate()
+        row.getCell(1).value = formatDayMonth(day.date)
+        row.getCell(1).alignment = { horizontal: 'center' }
         for (let c = 2; c <= 8; c++) {
           row.getCell(c).value = 'Off'
           row.getCell(c).alignment = { horizontal: 'center' }
@@ -155,7 +192,7 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
 
       if (isFeriado) {
         const row = sheet.getRow(rowNum)
-        row.getCell(1).value = new Date(day.date + 'T12:00:00').getDate()
+        row.getCell(1).value = formatDayMonth(day.date)
         row.getCell(1).alignment = { horizontal: 'center' }
         row.getCell(2).value = formatTime(day.start_time)
         row.getCell(2).alignment = { horizontal: 'center' }
@@ -164,20 +201,20 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
         row.getCell(3).alignment = { horizontal: 'center' }
         row.getCell(3).border = TABLE_BORDER
         feriadoMinutes += day.hours * 60
-        workingDays++
         rowNum++
         continue
       }
 
       // Normal working day
       const row = sheet.getRow(rowNum)
-      const dayOfMonth = new Date(day.date + 'T12:00:00').getDate()
+      const scheduledEnd = calcScheduledEndTime(day.start_time, profile.type)
+      const extraTime = calcExtraTime(scheduledEnd, day.end_time)
 
-      row.getCell(1).value = dayOfMonth
+      row.getCell(1).value = formatDayMonth(day.date)
       row.getCell(2).value = formatTime(day.start_time)
-      row.getCell(3).value = day.scheduled_end_time
+      row.getCell(3).value = scheduledEnd
       row.getCell(4).value = formatTime(day.end_time)
-      row.getCell(5).value = day.extra_time
+      row.getCell(5).value = extraTime
       row.getCell(6).value = day.concept || '-'
       row.getCell(7).value = '' // FIRMA SUPERVISOR — se llena a mano
       row.getCell(8).value = day.viatico ? 1 : ''
@@ -192,51 +229,42 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
         cell.border = TABLE_BORDER
       })
 
-      totalExtraMinutes += extraTimeToMinutes(day.extra_time)
-      workingDays++
+      totalExtraMinutes += extraTimeToMinutes(extraTime)
       rowNum++
     }
 
     // ── Totals section ──────────────────────────────────────
-
     rowNum++ // blank row before totals
 
     const totalAllExtraMinutes = totalExtraMinutes + feriadoMinutes
-
-    // Total row: HH:MM:SS and working days count
-    const totalRow = sheet.getRow(rowNum)
-    totalRow.getCell(1).value = minutesToHHMMSS(totalAllExtraMinutes)
-    totalRow.getCell(1).font = { bold: true }
-    totalRow.getCell(1).alignment = { horizontal: 'center' }
-    totalRow.getCell(2).value = workingDays
-    totalRow.getCell(2).font = { bold: true }
-    totalRow.getCell(2).alignment = { horizontal: 'center' }
-
-    // Summary text row
-    rowNum++
-    const totalExtraHours = Math.floor(totalExtraMinutes / 60)
-    const extraRemainder = totalExtraMinutes % 60
-    const feriadoHours = feriadoMinutes / 60
-
-    let summaryText = `Total : ${totalExtraHours} hrs extras`
-    if (extraRemainder > 0) {
-      summaryText += ` + ${extraRemainder / 60}`
-    }
-    if (feriadoMinutes > 0) {
-      summaryText += ` + ${feriadoHours} Feriado Nacional`
-    }
+    const totalExtraHours = totalAllExtraMinutes / 60
+    const totalHoursLabel = Number.isInteger(totalExtraHours)
+      ? String(totalExtraHours)
+      : totalExtraHours.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')
 
     sheet.mergeCells(rowNum, 1, rowNum, 8)
-    const summaryCell = sheet.getCell(`A${rowNum}`)
-    summaryCell.value = summaryText
-    summaryCell.font = { bold: true }
+    const totalCell = sheet.getCell(`A${rowNum}`)
+    totalCell.value = `Total: ${totalHoursLabel} hrs extras`
+    totalCell.font = { bold: true, size: 10 }
+    totalCell.alignment = { horizontal: 'left', vertical: 'middle' }
 
-    // ── Footer: REPORTE HORAS EXTRAS AEROPUERTO MGA (right-aligned) ──
-    rowNum++
-    sheet.mergeCells(rowNum, 1, rowNum, 8)
-    const footerCell = sheet.getCell(`A${rowNum}`)
-    footerCell.value = 'REPORTE HORAS EXTRAS AEROPUERTO MGA'
-    footerCell.alignment = { horizontal: 'right' }
+    // Apply the report's final typography and alignment consistently.
+    sheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.font = { ...(cell.font ?? {}), size: 10 }
+        cell.alignment = {
+          ...(cell.alignment ?? {}),
+          horizontal: 'center',
+          vertical: 'middle',
+          wrapText: true,
+        }
+      })
+    })
+    totalCell.alignment = { horizontal: 'left', vertical: 'middle' }
+    for (let row = 1; row <= 6; row++) {
+      sheet.getRow(row).height = 15
+    }
+    sheet.getRow(8).height = 15
 
     // ── Generate and download ───────────────────────────────
 

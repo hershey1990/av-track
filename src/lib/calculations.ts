@@ -66,7 +66,7 @@ export function calcNightHours(
 // ── Core calculations ─────────────────────────────────────────
 
 export function getStandardHours(type: EmploymentType): number {
-  return type === 'parttime' ? 5 : 8
+  return type === 'parttime' || String(type) === 'partime' ? 5 : 8
 }
 
 export function calcHours(startTime: string, endTime: string): number {
@@ -93,7 +93,7 @@ export function calcScheduledEndTime(
   type: EmploymentType
 ): string {
   const [sh, sm] = startTime.split(':').map(Number)
-  const addHours = type === 'parttime' ? 5 : 8
+  const addHours = getStandardHours(type)
   const totalMinutes = sh * 60 + sm + addHours * 60
   const h = Math.floor(totalMinutes / 60) % 24
   const m = totalMinutes % 60
