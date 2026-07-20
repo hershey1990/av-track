@@ -53,16 +53,15 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
     sheet.getColumn(1).width = 8
     sheet.getColumn(2).width = 12
     sheet.getColumn(3).width = 12
-    sheet.getColumn(4).width = 14
-    sheet.getColumn(5).width = 10
+    sheet.getColumn(4).width = 10
+    sheet.getColumn(5).width = 22
     sheet.getColumn(6).width = 22
-    sheet.getColumn(7).width = 22
-    sheet.getColumn(8).width = 12
+    sheet.getColumn(7).width = 12
 
     // ── Header section ──────────────────────────────────────
 
     // Row 1: Title
-    sheet.mergeCells('A1:H1')
+    sheet.mergeCells('A1:G1')
     const titleCell = sheet.getCell('A1')
     titleCell.value = 'REPORTE HORAS EXTRAS AEROPUERTO MGA'
     titleCell.font = { bold: true, size: 14 }
@@ -71,25 +70,25 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
     // Row 2: COLABORADOR
     sheet.getCell('A2').value = 'COLABORADOR'
     sheet.getCell('A2').font = { bold: true }
-    sheet.mergeCells('B2:H2')
+    sheet.mergeCells('B2:G2')
     sheet.getCell('B2').value = profile.full_name
 
     // Row 3: CODIGO EMPLEADO
     sheet.getCell('A3').value = 'CODIGO EMPLEADO'
     sheet.getCell('A3').font = { bold: true }
-    sheet.mergeCells('B3:H3')
+    sheet.mergeCells('B3:G3')
     sheet.getCell('B3').value = profile.employee_code || ''
 
     // Row 4: QUINCENAS
     sheet.getCell('A4').value = 'QUINCENAS'
     sheet.getCell('A4').font = { bold: true }
-    sheet.mergeCells('B4:H4')
+    sheet.mergeCells('B4:G4')
     sheet.getCell('B4').value = `${formatPeriodDate(period.start_date)} - ${formatPeriodDate(period.end_date)}`
 
     // Row 5: empty
     // Row 6: Table headers
     const headerRow = sheet.getRow(6)
-    const headers = ['DIA', 'ENTRADA', 'SALIDA', 'SALIDA REAL', 'EXTRAS', 'MOTIVO', 'FIRMA SUPERVISOR', 'VIATICO']
+    const headers = ['DIA', 'ENTRADA', 'SALIDA', 'EXTRAS', 'MOTIVO', 'FIRMA SUPERVISOR', 'VIATICO']
     headers.forEach((h, i) => {
       const cell = headerRow.getCell(i + 1)
       cell.value = h
@@ -112,7 +111,7 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
       if (isOff) {
         const row = sheet.getRow(rowNum)
         row.getCell(1).value = new Date(day.date + 'T12:00:00').getDate()
-        for (let c = 2; c <= 8; c++) {
+        for (let c = 2; c <= 7; c++) {
           row.getCell(c).value = 'Off'
           row.getCell(c).alignment = { horizontal: 'center' }
         }
@@ -126,7 +125,7 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
         row.getCell(1).alignment = { horizontal: 'center' }
         row.getCell(2).value = formatTime(day.start_time)
         row.getCell(2).alignment = { horizontal: 'center' }
-        sheet.mergeCells(rowNum, 3, rowNum, 8)
+        sheet.mergeCells(rowNum, 3, rowNum, 7)
         row.getCell(3).value = 'Feriado Nacional'
         feriadoMinutes += day.hours * 60
         workingDays++
@@ -140,15 +139,14 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
 
       row.getCell(1).value = dayOfMonth
       row.getCell(2).value = formatTime(day.start_time)
-      row.getCell(3).value = day.scheduled_end_time
-      row.getCell(4).value = formatTime(day.end_time)
-      row.getCell(5).value = day.extra_time
-      row.getCell(6).value = day.concept || '-'
-      row.getCell(7).value = '' // FIRMA SUPERVISOR — se llena a mano
-      row.getCell(8).value = day.viatico ? 1 : ''
+      row.getCell(3).value = formatTime(day.end_time)
+      row.getCell(4).value = day.extra_time
+      row.getCell(5).value = day.concept || '-'
+      row.getCell(6).value = '' // FIRMA SUPERVISOR — se llena a mano
+      row.getCell(7).value = day.viatico ? 1 : ''
 
       // Center-align numeric-ish columns
-      ;[1, 2, 3, 4, 5, 8].forEach((c) => {
+      ;[1, 2, 3, 4, 7].forEach((c) => {
         row.getCell(c).alignment = { horizontal: 'center' }
       })
 
@@ -186,14 +184,14 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
       summaryText += ` + ${feriadoHours} Feriado Nacional`
     }
 
-    sheet.mergeCells(rowNum, 1, rowNum, 8)
+    sheet.mergeCells(rowNum, 1, rowNum, 7)
     const summaryCell = sheet.getCell(`A${rowNum}`)
     summaryCell.value = summaryText
     summaryCell.font = { bold: true }
 
     // ── Footer: REPORTE HORAS EXTRAS AEROPUERTO MGA (right-aligned) ──
     rowNum++
-    sheet.mergeCells(rowNum, 1, rowNum, 8)
+    sheet.mergeCells(rowNum, 1, rowNum, 7)
     const footerCell = sheet.getCell(`A${rowNum}`)
     footerCell.value = 'REPORTE HORAS EXTRAS AEROPUERTO MGA'
     footerCell.alignment = { horizontal: 'right' }
