@@ -27,6 +27,8 @@ interface FormFieldSelectProps<TFieldValues extends FieldValues> {
   placeholder?: string;
   options: Option[];
   disabled?: boolean;
+  /** El Select de Base UI es modal por defecto. */
+  modal?: boolean;
 }
 
 export function FormFieldSelect<TFieldValues extends FieldValues>({
@@ -35,6 +37,7 @@ export function FormFieldSelect<TFieldValues extends FieldValues>({
   label,
   placeholder,
   options,
+  modal,
 }: FormFieldSelectProps<TFieldValues>) {
   const { field, fieldState } = useController({ control, name });
 

@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import { useForm, useController } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { useCreateEntry, useUpdateEntry } from "../hooks/use-entries";
 import { timeEntrySchema, type TimeEntryFormData } from "../schemas";
 import {
@@ -13,10 +13,7 @@ import {
   calcHours,
   getStandardHours,
 } from "@/lib/calculations";
-import {
-  getNicaraguaDateTime,
-  getTodayNicaragua,
-} from "@/lib/timezone";
+import { getNicaraguaDateTime, getTodayNicaragua } from "@/lib/timezone";
 import type { EmploymentType, TimeEntry } from "@/types";
 
 interface Props {
@@ -59,10 +56,16 @@ export function ManualEntryForm({
     },
   });
 
-  const startField = useController({ control: form.control, name: "start_time" });
+  const startField = useController({
+    control: form.control,
+    name: "start_time",
+  });
   const endField = useController({ control: form.control, name: "end_time" });
   const dateField = useController({ control: form.control, name: "date" });
-  const conceptField = useController({ control: form.control, name: "concept" });
+  const conceptField = useController({
+    control: form.control,
+    name: "concept",
+  });
 
   // El concepto se escribe en la barra superior; en modo creación lo tomamos
   // de ahí. En edición manda el valor de la entrada.
@@ -112,13 +115,12 @@ export function ManualEntryForm({
           >
             Inicio
           </Label>
-          <Input
+          <TimePicker
             id="manual-start"
-            type="time"
-            step={60}
+            value={startField.field.value || undefined}
+            onValueChange={(value) => startField.field.onChange(value ?? "")}
+            placeholder="--:--"
             aria-invalid={startField.fieldState.invalid}
-            {...startField.field}
-            value={startField.field.value ?? ""}
           />
         </div>
 
@@ -129,13 +131,12 @@ export function ManualEntryForm({
           >
             Fin
           </Label>
-          <Input
+          <TimePicker
             id="manual-end"
-            type="time"
-            step={60}
+            value={endField.field.value || undefined}
+            onValueChange={(value) => endField.field.onChange(value ?? "")}
+            placeholder="--:--"
             aria-invalid={endField.fieldState.invalid}
-            {...endField.field}
-            value={endField.field.value ?? ""}
           />
         </div>
       </div>
@@ -154,17 +155,13 @@ export function ManualEntryForm({
         >
           Fecha
         </Label>
-        <div className="relative">
-          <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="manual-date"
-            type="date"
-            className="pl-9"
-            aria-invalid={dateField.fieldState.invalid}
-            {...dateField.field}
-            value={dateField.field.value ?? ""}
-          />
-        </div>
+        <DatePicker
+          id="manual-date"
+          value={dateField.field.value || undefined}
+          onValueChange={(value) => dateField.field.onChange(value ?? "")}
+          placeholder="Elegí la fecha"
+          aria-invalid={dateField.fieldState.invalid}
+        />
       </div>
 
       {/* El concepto viene de la barra superior (o de la entrada en edición). */}

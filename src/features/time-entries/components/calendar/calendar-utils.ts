@@ -18,26 +18,10 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { EmploymentType, TimeEntry } from '@/types'
 
-/** Convierte un "yyyy-MM-dd" a un `Date` local (medianoche local). */
-export function fromDateOnly(dateStr: string): Date {
-  const { year, month, day } = parseDateOnly(dateStr)
-  return new Date(year, month - 1, day)
-}
-
-/**
- * Convierte un `Date` a "yyyy-MM-dd" usando sus getters de calendario.
- *
- * Se usan los getters (`getFullYear`/`getMonth`/`getDate`) en lugar de
- * `toISOString()` porque `react-day-picker` entrega objetos `TZDate` fijados a
- * la zona horaria objetivo: sus getters ya devuelven el día local de esa zona,
- * mientras que `toISOString()` convertiría a UTC y desplazaría la fecha.
- */
-export function toDateOnly(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+// Las conversiones entre "yyyy-MM-dd" y `Date` viven en `src/lib/timezone.ts`
+// (las necesitan también los date pickers). Se re-exportan aquí para no
+// romper los imports existentes de la vista de calendario.
+export { fromDateOnly, toDateOnly } from '@/lib/timezone'
 
 /** Suma un offset de días a un "yyyy-MM-dd" sin pasar por `Date`. */
 export function shiftDateOnly(dateStr: string, days: number): string {
