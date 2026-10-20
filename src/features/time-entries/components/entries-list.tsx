@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { ListFilter, Trash2 } from "lucide-react";
+import { ListFilter, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDeleteEntry } from "../hooks/use-entries";
+import { useManualEntry } from "../hooks/manual-entry-context";
 import { useRunningTimerContext } from "../hooks/running-timer-context";
 import {
   calcHours,
@@ -38,6 +39,7 @@ export function EntriesList({
   profileType,
 }: EntriesListProps) {
   const { isRunning, elapsed, concept } = useRunningTimerContext();
+  const manual = useManualEntry();
   const deleteEntry = useDeleteEntry();
 
   const groups = useMemo<Group[]>(() => {
@@ -124,6 +126,7 @@ export function EntriesList({
                   index={index}
                   profileType={profileType}
                   entriesBefore={group.entries.slice(0, index)}
+                  onEdit={() => manual.openEdit(entry)}
                   onDelete={() => handleDelete(entry)}
                 />
               ))}
@@ -170,12 +173,14 @@ function EntryRow({
   index,
   profileType,
   entriesBefore,
+  onEdit,
   onDelete,
 }: {
   entry: TimeEntry;
   index: number;
   profileType: EmploymentType;
   entriesBefore: TimeEntry[];
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   const hours = calcHours(entry.start_time, entry.end_time);
@@ -253,6 +258,15 @@ function EntryRow({
 
       {/* Acciones */}
       <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="size-7"
+          onClick={onEdit}
+          aria-label="Editar entrada"
+        >
+          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+        </Button>
         <Button
           variant="ghost"
           size="icon-xs"

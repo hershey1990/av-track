@@ -229,6 +229,8 @@ export function calcDay(
     scheduled_end_time: scheduledEnd,
     end_time: entry.end_time,
     concept: entry.concept,
+    entry_id: entry.id,
+    slot_index: entry.slot_index,
     hours,
     standard_hours: standardHours,
     extra_hours: extraHours,

@@ -8,9 +8,7 @@ import {
   usePeriodEntries,
   useEntries,
 } from "@/features/time-entries/hooks/use-entries";
-import { TimeEntryCard } from "@/features/time-entries/components/time-entry-card";
-import { DashboardKpiCards } from "@/features/time-entries/components/dashboard-kpi";
-import { TimelineChart } from "@/features/time-entries/components/timeline-chart";
+import { DashboardKpiCards } from "@/features/time-entries/components/dashboard-kpi";import { TimelineChart } from "@/features/time-entries/components/timeline-chart";
 import { EntriesList } from "@/features/time-entries/components/entries-list";
 import { PeriodSummarySections } from "@/features/reports/components/period-summary-sections";
 import { calcPeriodSummary } from "@/lib/calculations";
@@ -93,19 +91,14 @@ export default function DashboardPage() {
 
           <div className="border-t border-border" />
 
-          {/* Registro manual + resumen del período */}
-          <div className="space-y-8">
-            <div className="max-w-lg">
-              <TimeEntryCard userId={user.id} profileType={profile.type} />
-            </div>
-            {activePeriod && entries && (
-              <PeriodSummarySections
-                entries={entries}
-                type={profile.type}
-                viaticoRate={profile.viatico}
-              />
-            )}
-          </div>
+          {/* Resumen del período */}
+          {activePeriod && entries && (
+            <PeriodSummarySections
+              entries={entries}
+              type={profile.type}
+              viaticoRate={profile.viatico}
+            />
+          )}
         </>
       )}
     </div>

@@ -46,6 +46,10 @@ export interface DayCalculation {
   scheduled_end_time: string
   end_time: string
   concept: string
+  /** Id del registro de origen (ausente en días "Off" generados) */
+  entry_id?: string
+  /** Índice de ranura dentro del mismo día (1-based implícito) */
+  slot_index?: number
   hours: number
   standard_hours: number
   extra_hours: number

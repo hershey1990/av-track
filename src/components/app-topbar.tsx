@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -8,19 +9,70 @@ import {
   Menu,
   Pause,
   Play,
+  Plus,
   Tag,
   Timer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDurationHMS } from "@/lib/calculations";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  TrackerModeSwitch,
+  type TrackerMode,
+} from "@/components/tracker-mode-switch";
+import { ManualEntryForm } from "@/features/time-entries/components/manual-entry-form";
+import { useManualEntry } from "@/features/time-entries/hooks/manual-entry-context";
 import { useRunningTimerContext } from "@/features/time-entries/hooks/running-timer-context";
+import { useProfile } from "@/hooks/use-profile";
+import { useUser } from "@/hooks/use-user";
+import { formatDurationHMS } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
 
+const MODE_STORAGE_KEY = "bb-tracker-mode";
+
 export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
+  const { user } = useUser();
+  const { data: profile } = useProfile(user?.id);
+
   const { isRunning, elapsed, concept, setConcept, start, stop, isSaving } =
     useRunningTimerContext();
 
+  const manual = useManualEntry();
+
+  // ── Modo del tracker ("en curso" / "hecho") ──────────────────────────
+  const [mode, setMode] = useState<TrackerMode>("tracking");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(MODE_STORAGE_KEY);
+      if (saved === "done" || saved === "tracking") setMode(saved);
+    } catch {
+      /* localStorage no disponible */
+    }
+  }, []);
+
+  const changeMode = (next: TrackerMode) => {
+    setMode(next);
+    try {
+      window.localStorage.setItem(MODE_STORAGE_KEY, next);
+    } catch {
+      /* localStorage no disponible */
+    }
+  };
+
+  const isDone = mode === "done";
+
   const handleToggle = async () => {
+    // Modo "hecho": el botón redondo abre el panel para registrar una
+    // entrada que ya ocurrió.
+    if (!isRunning && isDone) {
+      manual.open();
+      return;
+    }
+
     if (isRunning) {
       try {
         const segments = await stop();
@@ -57,7 +109,7 @@ export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           type="text"
           value={concept}
           onChange={(e) => setConcept(e.target.value)}
-          placeholder="¿Qué estás haciendo?"
+          placeholder={isDone ? "¿Qué hiciste?" : "¿Qué estás haciendo?"}
           aria-label="Concepto del registro"
           className="h-10 min-w-0 flex-1 rounded-md bg-transparent px-2 text-[15px] text-foreground outline-none placeholder:text-muted-foreground focus:bg-muted/60 focus:placeholder:text-muted-foreground/70 sm:px-3"
         />
@@ -95,27 +147,73 @@ export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
             <DollarSign className="h-4 w-4" />
           </Button>
 
-          {/* Cronómetro */}
-          <span
-            className={cn(
-              "mx-1 hidden font-mono text-lg font-bold tabular-nums sm:inline",
-              isRunning ? "text-primary" : "text-foreground",
-            )}
-          >
-            {formatDurationHMS(elapsed)}
-          </span>
+          {/* Switch de modo */}
+          <TrackerModeSwitch mode={mode} onModeChange={changeMode} />
 
-          {/* Play / Pausa */}
+          {/* Cronómetro — abre el panel manual */}
+          <Popover
+            open={manual.isOpen}
+            onOpenChange={(open) => {
+              if (!open) manual.close();
+            }}
+          >
+            <PopoverTrigger
+              className={cn(
+                "mx-1 rounded-md px-2 font-mono text-lg font-bold tabular-nums transition-colors",
+                "hidden sm:inline-block",
+                isDone
+                  ? "border border-border hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                  : "text-foreground",
+                isRunning && !isDone && "text-primary",
+              )}
+              title="Registrar una entrada de horario"
+            >
+              {formatDurationHMS(elapsed)}
+            </PopoverTrigger>
+
+            <PopoverContent align="end" sideOffset={8} className="w-[380px] p-4">
+              {user && profile && (
+                <ManualEntryForm
+                  userId={user.id}
+                  profileType={profile.type}
+                  concept={concept}
+                  entry={manual.target}
+                  onSaved={() => manual.close()}
+                />
+              )}
+            </PopoverContent>
+          </Popover>
+
+          {/* Botón redondo: play / pausa / + */}
           <Button
             size="icon"
             onClick={handleToggle}
             disabled={isSaving}
-            aria-label={isRunning ? "Detener registro" : "Iniciar registro"}
-            title={isRunning ? "Detener" : "Iniciar"}
-            className="size-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+            aria-label={
+              isRunning
+                ? "Detener registro"
+                : isDone
+                  ? "Registrar entrada"
+                  : "Iniciar registro"
+            }
+            title={
+              isRunning
+                ? "Detener"
+                : isDone
+                  ? "Registrar una entrada que ya ocurrió"
+                  : "Iniciar"
+            }
+            className={cn(
+              "size-9 rounded-full",
+              isDone && !isRunning
+                ? "bg-foreground text-background hover:bg-foreground/90"
+                : "bg-primary text-primary-foreground hover:bg-primary/90",
+            )}
           >
             {isRunning ? (
               <Pause className="h-4 w-4 fill-current" />
+            ) : isDone ? (
+              <Plus className="h-4 w-4" />
             ) : (
               <Play className="ml-0.5 h-4 w-4 fill-current" />
             )}

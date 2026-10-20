@@ -1,23 +1,30 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PeriodSummaryDayRow } from "./period-summary-day-row";
 import {
   calcPeriodSummary,
   formatCurrency,
   formatDurationHMS,
   formatHours,
-  formatTime,
 } from "@/lib/calculations";
-import { formatDateShort, formatMonthYear } from "@/lib/timezone";
-import { cn } from "@/lib/utils";
+import { formatMonthYear } from "@/lib/timezone";
 import type { DayCalculation, EmploymentType, TimeEntry } from "@/types";
 
 interface Props {
   entries: TimeEntry[];
   type: EmploymentType;
   viaticoRate: number;
+  /** Título de la sección */
+  title?: string;
+  /** Mensaje mostrado cuando no hay registros */
+  emptyMessage?: string;
+  /** Acción del encabezado (reemplaza el botón de filtro por defecto) */
+  headerAction?: ReactNode;
+  /** Acciones por fila (editar / borrar) */
+  renderActions?: (day: DayCalculation) => ReactNode;
 }
 
 /** Un día del período, con su mes para agrupar en secciones. */
@@ -32,7 +39,15 @@ interface MonthGroup {
  * "Hoy / Ayer": encabezado con el total a la derecha y filas separadas
  * por filetes dentro de un contenedor con borde.
  */
-export function PeriodSummarySections({ entries, type, viaticoRate }: Props) {
+export function PeriodSummarySections({
+  entries,
+  type,
+  viaticoRate,
+  title = "Resumen del período",
+  emptyMessage = "Sin registros en este período",
+  headerAction,
+  renderActions,
+}: Props) {
   const summary = useMemo(
     () => calcPeriodSummary(entries, type, viaticoRate),
     [entries, type, viaticoRate],
@@ -55,10 +70,26 @@ export function PeriodSummarySections({ entries, type, viaticoRate }: Props) {
     }));
   }, [summary.days]);
 
+  /** Nº de registros por fecha y ordinal de cada uno dentro de su día. */
+  const slots = useMemo(() => {
+    const countByDate = new Map<string, number>();
+    const ordinalByKey = new Map<string, number>();
+    const seen = new Map<string, number>();
+
+    for (const day of summary.days) {
+      countByDate.set(day.date, (countByDate.get(day.date) ?? 0) + 1);
+      const next = (seen.get(day.date) ?? 0) + 1;
+      seen.set(day.date, next);
+      ordinalByKey.set(dayKey(day), next);
+    }
+
+    return { countByDate, ordinalByKey };
+  }, [summary.days]);
+
   if (summary.days.length === 0) {
     return (
       <p className="px-5 py-6 text-center text-sm text-muted-foreground">
-        Sin registros en este período
+        {emptyMessage}
       </p>
     );
   }
@@ -67,22 +98,22 @@ export function PeriodSummarySections({ entries, type, viaticoRate }: Props) {
     <section>
       {/* Encabezado — mismo patrón que "Hoy" / "Ayer" */}
       <div className="flex items-center justify-between gap-4 pb-3">
-        <h2 className="text-[15px] font-semibold text-foreground">
-          Resumen del período
-        </h2>
+        <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[15px] font-semibold tabular-nums text-foreground">
             {formatDurationHMS(summary.total_hours * 3600)}
           </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8 rounded-md"
-            title="Filtrar registros"
-            aria-label="Filtrar el resumen del período"
-          >
-            <ListFilter className="h-4 w-4 text-muted-foreground" />
-          </Button>
+          {headerAction ?? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8 rounded-md"
+              title="Filtrar registros"
+              aria-label="Filtrar el resumen del período"
+            >
+              <ListFilter className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -124,7 +155,13 @@ export function PeriodSummarySections({ entries, type, viaticoRate }: Props) {
 
           <div className="overflow-hidden rounded-lg bg-card ring-1 ring-foreground/8">
             {group.days.map((day) => (
-              <DayRow key={day.date} day={day} />
+              <PeriodSummaryDayRow
+                key={dayKey(day)}
+                day={day}
+                slotCount={slots.countByDate.get(day.date) ?? 1}
+                slotIndex={slots.ordinalByKey.get(dayKey(day))}
+                actions={renderActions?.(day)}
+              />
             ))}
           </div>
         </div>
@@ -133,59 +170,7 @@ export function PeriodSummarySections({ entries, type, viaticoRate }: Props) {
   );
 }
 
-function DayRow({ day }: { day: DayCalculation }) {
-  const hasExtra = day.extra_hours > 0;
-  const title = day.concept?.trim() || "Registro";
-
-  return (
-    <div className="flex items-center gap-3 border-b border-border px-5 py-3.5 last:border-b-0 hover:bg-muted/40">
-      {/* Fecha */}
-      <span className="w-[52px] shrink-0 font-mono text-[13px] tabular-nums text-muted-foreground">
-        {formatDateShort(day.date)}
-      </span>
-
-      {/* Concepto */}
-      <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-foreground">
-        {title}
-      </span>
-
-      {/* Etiqueta de estado */}
-      <span className="hidden shrink-0 items-center gap-1.5 sm:flex">
-        <span
-          className={cn(
-            "h-1.5 w-1.5 rounded-full",
-            hasExtra ? "bg-chart-1" : "bg-chart-2",
-          )}
-        />
-        <span
-          className={cn(
-            "text-[13px]",
-            hasExtra ? "text-chart-1" : "text-chart-2",
-          )}
-        >
-          {hasExtra ? "Horas extra" : "Regular"}
-        </span>
-      </span>
-
-      {/* Horas extra */}
-      <span className="w-[62px] shrink-0 text-right font-mono text-[13px] tabular-nums text-muted-foreground">
-        {hasExtra ? `+${formatHours(day.extra_hours)}h` : "—"}
-      </span>
-
-      {/* Viático */}
-      <span className="w-[86px] shrink-0 text-right text-[13px] font-semibold tabular-nums text-chart-1">
-        {day.viatico ? formatCurrency(day.viatico_amount) : "—"}
-      </span>
-
-      {/* Rango horario */}
-      <span className="hidden shrink-0 font-mono text-[13px] tabular-nums text-foreground sm:inline">
-        {formatTime(day.start_time)} - {formatTime(day.end_time)}
-      </span>
-
-      {/* Duración */}
-      <span className="w-[68px] shrink-0 text-right font-mono text-[13px] font-semibold tabular-nums text-foreground">
-        {formatDurationHMS(day.hours * 3600)}
-      </span>
-    </div>
-  );
+/** Clave única por registro (puede haber varios registros en la misma fecha). */
+function dayKey(day: DayCalculation): string {
+  return day.entry_id ?? `${day.date}-${day.start_time}-${day.end_time}`;
 }
