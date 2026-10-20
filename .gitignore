@@ -34,6 +34,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# mcp config (may contain access tokens)
+.mcp.json
+opencode.json
+
 # kun plans
 /.kunsdd/
 

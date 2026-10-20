@@ -57,10 +57,13 @@ function minutesToHHMMSS(totalMinutes: number): string {
   return `${h}:${String(m).padStart(2, '0')}:00`
 }
 
+// Headers / reutilizable
+const HEADER_BG_ARGB = 'FFA6A6A6' // #A6A6A6
+
 const HEADER_FILL: ExcelJS.Fill = {
   type: 'pattern',
   pattern: 'solid',
-  fgColor: { argb: 'FFD9D9D9' },
+  fgColor: { argb: HEADER_BG_ARGB },
 }
 
 const REAL_EXIT_FILL: ExcelJS.Fill = {
@@ -72,7 +75,7 @@ const REAL_EXIT_FILL: ExcelJS.Fill = {
 const EXTRAS_FILL: ExcelJS.Fill = {
   type: 'pattern',
   pattern: 'solid',
-  fgColor: { argb: 'FFD9D9D9' },
+  fgColor: { argb: HEADER_BG_ARGB },
 }
 
 const TABLE_BORDER: ExcelJS.Borders = {

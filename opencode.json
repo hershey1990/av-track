@@ -2,16 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "supabase": {
-      "type": "local",
-      "command": [
-        "node",
-        "./node_modules/@supabase/mcp-server-supabase/dist/transports/stdio.js",
-        "--project-ref",
-        "vjwfopcbmljawgtyhmqa"
-      ],
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
-      },
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=vjwfopcbmljawgtyhmqa&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
       "enabled": true
     }
   }
