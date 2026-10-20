@@ -52,6 +52,9 @@ export function FormFieldSelect<TFieldValues extends FieldValues>({
           // (Base UI exige controlado o no controlado, nunca ambos).
           value={field.value ?? null}
           onValueChange={field.onChange}
+          // `modal={false}` deja interactuar con el resto de la página con el
+          // popup abierto. Si no se indica, Base UI lo hace modal.
+          modal={modal}
         >
           <SelectTrigger
             id={name}

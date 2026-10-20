@@ -36,8 +36,9 @@ export function FormFieldDatePicker<TFieldValues extends FieldValues>({
 
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <Label htmlFor={name}>{label}</Label>
       <DatePicker
+        id={name}
         value={field.value || undefined}
         onValueChange={(value) => field.onChange(value ?? "")}
         placeholder={placeholder}

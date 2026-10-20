@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { fromDateOnly, toDateOnly } from "@/lib/timezone";
+import type { DateRange, Matcher } from "react-day-picker";
 
 /**
  * Selectores de fecha basados en el `DatePicker` de shadcn (composición de
@@ -38,6 +39,10 @@ interface DatePickerProps {
   id?: string;
   disabled?: boolean;
   className?: string;
+  /** Fecha mínima seleccionable ("yyyy-MM-dd"). */
+  min?: string;
+  /** Fecha máxima seleccionable ("yyyy-MM-dd"). */
+  max?: string;
   /** Se marca el campo como inválido (validación de formularios). */
   "aria-invalid"?: boolean;
 }
@@ -50,11 +55,21 @@ export function DatePicker({
   id,
   disabled,
   className,
+  min,
+  max,
   "aria-invalid": ariaInvalid,
 }: DatePickerProps) {
   const [date, setDate] = React.useState<Date | undefined>(
     value ? fromDateOnly(value) : undefined,
   );
+
+  // Días que quedan fuera del rango permitido.
+  const disabledDays = React.useMemo<Matcher[]>(() => {
+    const matchers: Matcher[] = [];
+    if (min) matchers.push({ before: fromDateOnly(min) });
+    if (max) matchers.push({ after: fromDateOnly(max) });
+    return matchers;
+  }, [min, max]);
 
   // Sincroniza el estado interno cuando el valor cambia desde fuera
   // (p. ej. al editar otra entrada).
@@ -68,7 +83,11 @@ export function DatePicker({
   };
 
   return (
-    <div aria-invalid={ariaInvalid || undefined}>
+    <div
+      aria-invalid={ariaInvalid || undefined}
+      data-invalid={ariaInvalid || undefined}
+      className="group/picker"
+    >
       <Popover>
         <PopoverTrigger
           render={
@@ -77,7 +96,7 @@ export function DatePicker({
               variant="outline"
               disabled={disabled}
               data-empty={!date}
-              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground ${className ?? ""}`}
+              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground group-data-[invalid=true]/picker:border-destructive group-data-[invalid=true]/picker:ring-3 group-data-[invalid=true]/picker:ring-destructive/20 ${className ?? ""}`}
             />
           }
         >
@@ -95,6 +114,7 @@ export function DatePicker({
             locale={es}
             selected={date}
             onSelect={handleSelect}
+            disabled={disabledDays.length > 0 ? disabledDays : undefined}
           />
         </PopoverContent>
       </Popover>
@@ -130,9 +150,7 @@ export function DateRangePicker({
   className,
   "aria-invalid": ariaInvalid,
 }: DateRangePickerProps) {
-  const [range, setRange] = React.useState<
-    { from: Date | undefined; to: Date | undefined } | undefined
-  >(() =>
+  const [range, setRange] = React.useState<DateRange | undefined>(() =>
     from || to
       ? {
           from: from ? fromDateOnly(from) : undefined,
@@ -152,14 +170,11 @@ export function DateRangePicker({
     );
   }, [from, to]);
 
-  const handleSelect = (next: {
-    from: Date | undefined;
-    to?: Date | undefined;
-  }) => {
+  const handleSelect = (next: DateRange | undefined) => {
     setRange(next);
     onRangeChange?.(
-      next.from ? toDateOnly(next.from) : undefined,
-      next.to ? toDateOnly(next.to) : undefined,
+      next?.from ? toDateOnly(next.from) : undefined,
+      next?.to ? toDateOnly(next.to) : undefined,
     );
   };
 
@@ -170,7 +185,11 @@ export function DateRangePicker({
     : placeholder;
 
   return (
-    <div aria-invalid={ariaInvalid || undefined}>
+    <div
+      aria-invalid={ariaInvalid || undefined}
+      data-invalid={ariaInvalid || undefined}
+      className="group/picker"
+    >
       <Popover>
         <PopoverTrigger
           render={
@@ -179,7 +198,7 @@ export function DateRangePicker({
               variant="outline"
               disabled={disabled}
               data-empty={!from}
-              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground ${className ?? ""}`}
+              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground group-data-[invalid=true]/picker:border-destructive group-data-[invalid=true]/picker:ring-3 group-data-[invalid=true]/picker:ring-destructive/20 ${className ?? ""}`}
             />
           }
         >
