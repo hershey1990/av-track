@@ -4,10 +4,10 @@ import { useEffect } from 'react'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Field, FieldLabel, FieldContent } from '@/components/ui/field'
 import { FormFieldInput } from '@/components/ui/form-field-input'
 import { useCreatePeriod, useUpdatePeriod } from '@/features/reports/hooks/use-periods'
+import { DatePicker } from '@/components/ui/date-picker'
 import { periodSchema, type PeriodFormData } from '../schemas'
 import type { Period } from '@/types'
 
@@ -25,13 +25,19 @@ function DateField({ form, name, label }: {
   name: 'start_date' | 'end_date'
   label: string
 }) {
-  const { field } = useController({ control: form.control, name })
+  const { field, fieldState } = useController({ control: form.control, name })
 
   return (
-    <Field>
+    <Field data-invalid={fieldState.invalid}>
       <FieldLabel htmlFor={name}>{label}</FieldLabel>
       <FieldContent>
-        <Input id={name} type="date" {...field} value={field.value ?? ''} />
+        <DatePicker
+          id={name}
+          value={field.value || undefined}
+          onValueChange={(value) => field.onChange(value ?? '')}
+          placeholder="Elegí la fecha"
+          aria-invalid={fieldState.invalid}
+        />
       </FieldContent>
     </Field>
   )

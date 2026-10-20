@@ -56,6 +56,33 @@ export function formatDateFull(dateStr: string): string {
 }
 
 /**
+ * Convierte un "yyyy-MM-dd" a un `Date` local (medianoche local).
+ *
+ * Nunca usar `new Date('yyyy-MM-dd')`: se interpreta como UTC midnight y
+ * desplaza el día en las zonas al oeste de UTC. Es el conversor que necesita
+ * `react-day-picker` (que trabaja con objetos `Date`).
+ */
+export function fromDateOnly(dateStr: string): Date {
+  const { year, month, day } = parseDateOnly(dateStr)
+  return new Date(year, month - 1, day)
+}
+
+/**
+ * Convierte un `Date` a "yyyy-MM-dd" usando sus getters de calendario.
+ *
+ * Se usan los getters (`getFullYear`/`getMonth`/`getDate`) en lugar de
+ * `toISOString()` porque `react-day-picker` entrega objetos `TZDate` fijados
+ * a la zona horaria objetivo: sus getters ya devuelven el día local de esa
+ * zona, mientras que `toISOString()` convertiría a UTC y desplazaría la fecha.
+ */
+export function toDateOnly(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * Return the first and last day of the current month in Nicaragua
  * timezone as "yyyy-MM-dd" strings.
  */

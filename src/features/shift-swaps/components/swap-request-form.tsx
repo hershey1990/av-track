@@ -5,8 +5,8 @@ import { useUser } from "@/hooks/use-user";
 import { useColleagues, useCreateSwapRequest } from "../hooks/use-shift-swaps";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -92,12 +92,11 @@ export function SwapRequestForm({ onSuccess }: Props) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="swap-date">Fecha del cambio</Label>
-            <Input
+            <DatePicker
               id="swap-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
+              value={date || undefined}
+              onValueChange={(value) => setDate(value ?? "")}
+              placeholder="Elegí la fecha"
             />
           </div>
           <div className="space-y-1.5">

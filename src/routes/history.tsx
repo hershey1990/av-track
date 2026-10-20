@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { ListFilter, Pencil, Trash2 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-profile";
-import { getMonthRangeNicaragua } from "@/lib/timezone";
+import { getMonthRangeNicaragua, formatDateFull } from "@/lib/timezone";
 import {
   useEntries,
   useDeleteEntry,
@@ -13,7 +13,7 @@ import { EntryEditDialog } from "@/features/time-entries/components/entry-edit-d
 import { PeriodSummarySections } from "@/features/reports/components/period-summary-sections";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import type { DayCalculation, EmploymentType, TimeEntry } from "@/types";
 
@@ -23,10 +23,14 @@ export default function HistoryPage() {
   const { firstDay, lastDay } = getMonthRangeNicaragua();
 
   const [from, setFrom] = useState(firstDay);
-  const [to, setTo] = useState(lastDay);
+  // `to` puede quedar sin definir mientras el usuario elige el fin del rango
+  // en el calendario; mientras tanto se consulta hasta el día inicial.
+  const [to, setTo] = useState<string | undefined>(lastDay);
   const [showFilters, setShowFilters] = useState(true);
 
-  const { data: entries, isLoading } = useEntries(user?.id, from, to);
+  const effectiveTo = to ?? from;
+
+  const { data: entries, isLoading } = useEntries(user?.id, from, effectiveTo);
 
   /** Entradas indexadas por id para resolver las acciones de cada fila. */
   const entriesById = useMemo(() => {
@@ -53,24 +57,33 @@ export default function HistoryPage() {
             <CardTitle>Filtros</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="history-from">Desde</Label>
-                <Input
-                  id="history-from"
-                  type="date"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
+                <Label htmlFor="history-range">Rango de fechas</Label>
+                <DateRangePicker
+                  id="history-range"
+                  from={from}
+                  to={to}
+                  onRangeChange={(nextFrom, nextTo) => {
+                    if (!nextFrom) return;
+                    setFrom(nextFrom);
+                    setTo(nextTo);
+                  }}
+                  placeholder="Elegí un rango"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="history-to">Hasta</Label>
-                <Input
-                  id="history-to"
-                  type="date"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                />
+                <p className="text-sm text-muted-foreground">
+                  Mostrando del{" "}
+                  <span className="font-medium text-foreground">
+                    {formatDateFull(from)}
+                  </span>{" "}
+                  al{" "}
+                  <span className="font-medium text-foreground">
+                    {formatDateFull(effectiveTo)}
+                  </span>
+                  .
+                </p>
               </div>
             </div>
           </CardContent>

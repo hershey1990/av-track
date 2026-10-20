@@ -5,6 +5,7 @@ import { useForm, useController } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   Field,
   FieldContent,
@@ -137,13 +138,12 @@ function DayEntryFields({
           <Field data-invalid={startField.fieldState.invalid}>
             <FieldLabel htmlFor={`day-start-${date}`}>Inicio</FieldLabel>
             <FieldContent>
-              <Input
+              <TimePicker
                 id={`day-start-${date}`}
-                type="time"
-                step={60}
+                value={startField.field.value || undefined}
+                onValueChange={(value) => startField.field.onChange(value ?? "")}
+                placeholder="--:--"
                 aria-invalid={startField.fieldState.invalid}
-                {...startField.field}
-                value={startField.field.value ?? ""}
               />
               <FieldError
                 errors={
@@ -158,13 +158,12 @@ function DayEntryFields({
           <Field data-invalid={endField.fieldState.invalid}>
             <FieldLabel htmlFor={`day-end-${date}`}>Fin</FieldLabel>
             <FieldContent>
-              <Input
+              <TimePicker
                 id={`day-end-${date}`}
-                type="time"
-                step={60}
+                value={endField.field.value || undefined}
+                onValueChange={(value) => endField.field.onChange(value ?? "")}
+                placeholder="--:--"
                 aria-invalid={endField.fieldState.invalid}
-                {...endField.field}
-                value={endField.field.value ?? ""}
               />
               <FieldError
                 errors={

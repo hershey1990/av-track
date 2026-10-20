@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormFieldInput } from "@/components/ui/form-field-input";
+import { FormFieldDatePicker } from "@/components/ui/form-field-date-picker";
 import { FormFieldSelect } from "@/components/ui/form-field-select";
 import { useCreateAbsence } from "../hooks/use-absences";
 import { absenceSchema, type AbsenceFormData } from "../schemas";
@@ -83,17 +84,17 @@ export function AbsenceRequestCard({ userId, onSuccess }: Props) {
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <FormFieldInput
+            <FormFieldDatePicker
               control={form.control}
               name="start_date"
               label="Fecha inicio"
-              type="date"
+              placeholder="Elegí la fecha"
             />
-            <FormFieldInput
+            <FormFieldDatePicker
               control={form.control}
               name="end_date"
               label="Fecha fin"
-              type="date"
+              placeholder="Elegí la fecha"
             />
           </div>
 

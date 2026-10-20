@@ -4,6 +4,7 @@ import { useForm, useController } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   Dialog,
   DialogContent,
@@ -111,12 +112,12 @@ function TimeField({
     <Field data-invalid={fieldState.invalid}>
       <FieldLabel htmlFor={name}>{label}</FieldLabel>
       <FieldContent>
-        <Input
+        <TimePicker
           id={name}
-          type="time"
+          value={field.value || undefined}
+          onValueChange={(value) => field.onChange(value ?? "")}
+          placeholder="--:--"
           aria-invalid={fieldState.invalid}
-          {...field}
-          value={field.value ?? ""}
         />
         <FieldError errors={fieldState.error ? [fieldState.error] : []} />
       </FieldContent>
