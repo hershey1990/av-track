@@ -126,7 +126,8 @@ export function buildDailySeries(
         extraHours,
         totalHours,
         viatico: dayList.reduce((sum, day) => sum + day.viatico_amount, 0),
-        entryCount: dayList.length,
+        // Los días sin registro se generan como "Off" y no son entradas reales.
+        entryCount: dayList.filter((day) => day.entry_id).length,
       };
     });
 }
