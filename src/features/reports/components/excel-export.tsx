@@ -5,6 +5,12 @@ import { FileDown } from 'lucide-react'
 import * as ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import { calcExtraTime, calcScheduledEndTime, formatTime } from '@/lib/calculations'
+import {
+  extraTimeToMinutes,
+  formatDayMonth,
+  formatPeriodDate,
+  loadImageDataUrl,
+} from '../export-utils'
 import type { DayCalculation, Period, Profile } from '@/types'
 
 interface Props {
@@ -12,49 +18,6 @@ interface Props {
   period: Period
   profile: Profile
   fileName?: string
-}
-
-const SPANISH_MONTHS = [
-  'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
-]
-
-function formatPeriodDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00')
-  const day = d.getDate()
-  const month = SPANISH_MONTHS[d.getMonth()]
-  return `${day} ${month}`
-}
-
-function formatDayMonth(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00')
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
-}
-
-async function loadImageDataUrl(src: string): Promise<string> {
-  const response = await fetch(src)
-  if (!response.ok) {
-    throw new Error(`Unable to load image: ${src}`)
-  }
-  const blob = await response.blob()
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(reader.error ?? new Error(`Unable to read image: ${src}`))
-    reader.readAsDataURL(blob)
-  })
-}
-
-function extraTimeToMinutes(extraTime: string): number {
-  if (extraTime === 'Off' || extraTime === '0:00') return 0
-  const [h, m] = extraTime.split(':').map(Number)
-  return h * 60 + m
-}
-
-function minutesToHHMMSS(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60)
-  const m = totalMinutes % 60
-  return `${h}:${String(m).padStart(2, '0')}:00`
 }
 
 // Headers / reutilizable

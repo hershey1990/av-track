@@ -31,9 +31,6 @@ export function describeDbError(error: unknown): string {
     case '42501':
       return 'Permisos insuficientes: pedí a un administrador que revise tus permisos'
     case '23505':
-      if (/time_entries_user_id_date_key/.test(details) || /time_entries_user_id_date_key/.test(message)) {
-        return 'Ya existe una entrada para ese día. Aplicá la migración pendiente para permitir varias entradas por día'
-      }
       return 'Ya existe un registro con esos datos'
     case '23503':
       return 'La referencia apunta a un registro que no existe'

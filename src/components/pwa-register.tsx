@@ -1,24 +1,16 @@
 'use client'
 
 import { useEffect } from 'react'
+import { BB_SW_VERSION } from '@/config/pwa'
 
 const SW_VERSION_KEY = 'bb-sw-version'
-const CURRENT_SW_VERSION = 'v3'
 
 export function PWARegister() {
   useEffect(() => {
-    // Clear old localStorage-based Supabase sessions (migrated to cookies)
-    const storedVersion = localStorage.getItem(SW_VERSION_KEY)
-    if (storedVersion !== CURRENT_SW_VERSION) {
-      // Remove old supabase auth data from localStorage
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i)
-        if (key && key.startsWith('supabase.auth')) {
-          localStorage.removeItem(key)
-        }
-      }
-      localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION)
-    }
+    // La sesión de Supabase vive en localStorage (persistSession por defecto),
+    // así que NO se toca aquí: borrarla cerraría la sesión del usuario en cada
+    // actualización del service worker.
+    localStorage.setItem(SW_VERSION_KEY, BB_SW_VERSION)
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then((reg) => {

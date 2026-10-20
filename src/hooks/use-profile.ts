@@ -20,7 +20,10 @@ export function useProfile(userId: string | undefined) {
     queryKey: ['profile', userId],
     queryFn: () => getProfile(userId!),
     enabled: !!userId,
-    refetchOnMount: 'always',
+    // El perfil lo consumen muchos componentes a la vez (sidebar, topbar y
+    // cada página). Con `staleTime` evitamos una petición por cada uno en
+    // cada navegación.
+    staleTime: 30_000,
   })
 }
 
@@ -38,6 +41,9 @@ export function useUpdateProfile() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['profile', variables.userId] })
+      // El listado de usuarios del panel admin se cachea aparte; sin esta
+      // invalidación quedaba desactualizado hasta un refetch manual.
+      queryClient.invalidateQueries({ queryKey: ['admin', 'profiles'] })
     },
   })
 }

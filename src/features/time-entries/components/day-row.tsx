@@ -5,7 +5,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { formatDateShort } from "@/lib/timezone";
 import { useDeleteEntry } from "../hooks/use-entries";
-import { calcHours } from "@/lib/calculations";
+import { calcHours, calcViatico } from "@/lib/calculations";
+import { VIATICO_DEFAULT } from "@/config/constants";
 import type { TimeEntry, EmploymentType } from "@/types";
 import { EntryEditDialog } from "./entry-edit-dialog";
 
@@ -50,8 +51,8 @@ export function DayRow({ entry, profileType = "fulltime", slotCount }: Props) {
       </TableCell>
       <TableCell className="max-w-[120px] truncate">{entry.concept}</TableCell>
       <TableCell>
-        <Badge variant={hours >= 7 ? "default" : "secondary"}>
-          {hours >= 7 ? "C$180" : "—"}
+        <Badge variant={calcViatico(hours) ? "default" : "secondary"}>
+          {calcViatico(hours) ? `C$${VIATICO_DEFAULT}` : "—"}
         </Badge>
       </TableCell>
       <TableCell>

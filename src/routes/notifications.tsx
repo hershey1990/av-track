@@ -10,23 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-
-function typeIcon(type: string) {
-  switch (type) {
-    case "absence_request":
-    case "absence_approved":
-    case "absence_rejected":
-      return "📅";
-    case "period_approval":
-    case "period_approved":
-    case "period_rejected":
-      return "📄";
-    case "shift_swap":
-      return "🔄";
-    default:
-      return "🔔";
-  }
-}
+import { typeIcon } from "@/features/notifications/utils";
 
 export default function NotificationsPage() {
   const { user } = useUser();

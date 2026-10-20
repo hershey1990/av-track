@@ -117,7 +117,7 @@ describe('getMonthRangeNicaragua', () => {
 
   it('lastDay should be a valid end-of-month', () => {
     const { lastDay } = getMonthRangeNicaragua()
-    const [y, m, d] = lastDay.split('-').map(Number)
+    const d = Number(lastDay.split('-')[2])
     // last day of month must be between 28 and 31
     expect(d).toBeGreaterThanOrEqual(28)
     expect(d).toBeLessThanOrEqual(31)

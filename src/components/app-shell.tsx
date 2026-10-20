@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { ManualEntryProvider } from "@/features/time-entries/hooks/manual-entry-context";
+import { NotificationRealtimeSync } from "@/features/notifications/components/notification-realtime-sync";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ManualEntryProvider>
+      <NotificationRealtimeSync />
       <div className="min-h-full">
         {/* Sidebar fijo (escritorio) */}
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-56 lg:block">

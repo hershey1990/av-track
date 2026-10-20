@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useUser } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-profile";
 import { usePeriods } from "@/features/reports/hooks/use-periods";
@@ -17,9 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { calcPeriodSummary, generatePeriodDays } from "@/lib/calculations";
+import { generatePeriodDays } from "@/lib/calculations";
 import { formatDateFull } from "@/lib/timezone";
-import { useMemo } from "react";
 
 export default function ReportPage() {
   const { user } = useUser();
@@ -32,14 +31,6 @@ export default function ReportPage() {
   );
 
   const selectedPeriod = periods?.find((p) => p.id === selectedPeriodId);
-
-  const summary = useMemo(
-    () =>
-      entries && profile
-        ? calcPeriodSummary(entries, profile.type, profile.viatico)
-        : null,
-    [entries, profile],
-  );
 
   const allPeriodDays = useMemo(
     () =>
@@ -90,7 +81,7 @@ export default function ReportPage() {
         </CardContent>
       </Card>
 
-      {entries && profile && selectedPeriod && summary && (
+      {entries && profile && selectedPeriod && allPeriodDays && (
         <>
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-[15px] font-semibold text-foreground">

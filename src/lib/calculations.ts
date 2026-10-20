@@ -1,5 +1,9 @@
 import { addDays, parseISO, format } from 'date-fns'
-import { THRESHOLD_VIATICO_HORAS } from '@/config/constants'
+import {
+  THRESHOLD_VIATICO_HORAS,
+  STANDARD_HOURS_PARTTIME,
+  STANDARD_HOURS_FULLTIME,
+} from '@/config/constants'
 import type {
   EmploymentType,
   DayCalculation,
@@ -66,7 +70,7 @@ export function calcNightHours(
 // ── Core calculations ─────────────────────────────────────────
 
 export function getStandardHours(type: EmploymentType): number {
-  return type === 'parttime' || String(type) === 'partime' ? 5 : 8
+  return type === 'parttime' ? STANDARD_HOURS_PARTTIME : STANDARD_HOURS_FULLTIME
 }
 
 export function calcHours(startTime: string, endTime: string): number {

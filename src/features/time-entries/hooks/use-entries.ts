@@ -1,8 +1,6 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSupabase } from '@/lib/supabase/client'
-import type { TimeEntry } from '@/types'
 import type { TimeEntryFormData } from '../schemas'
 import * as api from '../api'
 
@@ -10,14 +8,6 @@ export function useEntries(userId: string | undefined, from?: string, to?: strin
   return useQuery({
     queryKey: ['time-entries', userId, from, to],
     queryFn: () => api.getEntries(userId!, from, to),
-    enabled: !!userId,
-  })
-}
-
-export function useTodayEntry(userId: string | undefined) {
-  return useQuery({
-    queryKey: ['time-entries', 'today', userId],
-    queryFn: () => api.getTodayEntry(userId!),
     enabled: !!userId,
   })
 }
@@ -68,19 +58,4 @@ export function usePeriodEntries(userId: string | undefined, periodId: string | 
     queryFn: () => api.getPeriodEntries(userId!, periodId!),
     enabled: !!userId && !!periodId,
   })
-}
-
-export async function getAllUsersEntries(from?: string, to?: string): Promise<(TimeEntry & { profile: { full_name: string; type: string } })[]> {
-  const supabase = getSupabase()
-  let query = supabase
-    .from('time_entries')
-    .select('*, profile:profiles(full_name, type)')
-    .order('date', { ascending: false })
-
-  if (from) query = query.gte('date', from)
-  if (to) query = query.lte('date', to)
-
-  const { data, error } = await query
-  if (error) throw error
-  return data
 }

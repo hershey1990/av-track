@@ -10,13 +10,13 @@ describe('describeDbError', () => {
     expect(describeDbError(undefined)).toBe('Ocurrió un error inesperado')
   })
 
-  it('traduce una restricción UNIQUE de entradas por día', () => {
+  it('traduce una restricción UNIQUE genérica', () => {
     const error = {
-      message: 'duplicate key value violates unique constraint "time_entries_user_id_date_key"',
+      message: 'duplicate key value violates unique constraint "time_entries_user_id_date_slot_index_key"',
       code: '23505',
-      details: 'Key (user_id, date)=(...) already exists.',
+      details: 'Key (user_id, date, slot_index)=(...) already exists.',
     }
-    expect(describeDbError(error)).toContain('migración pendiente')
+    expect(describeDbError(error)).toBe('Ya existe un registro con esos datos')
   })
 
   it('traduce una tabla inexistente', () => {

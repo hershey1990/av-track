@@ -43,11 +43,13 @@ export function AdminAbsenceList() {
   }
 
   const handleApprove = (id: string) => {
-    updateStatus.mutate({ id, status: 'approved', reviewedBy: user!.id })
+    if (!profile) return
+    updateStatus.mutate({ id, status: 'approved', reviewedBy: profile.id })
   }
 
   const handleReject = (id: string) => {
-    updateStatus.mutate({ id, status: 'rejected', reviewedBy: user!.id })
+    if (!profile) return
+    updateStatus.mutate({ id, status: 'rejected', reviewedBy: profile.id })
   }
 
   return (

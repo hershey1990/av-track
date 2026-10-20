@@ -14,7 +14,7 @@ import {
   formatHours,
   formatCurrency,
 } from './calculations'
-import type { TimeEntry, EmploymentType, PolicyConfig, Holiday } from '@/types'
+import type { TimeEntry, PolicyConfig, Holiday } from '@/types'
 
 // ── getStandardHours ──────────────────────────────────────────
 

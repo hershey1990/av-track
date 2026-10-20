@@ -13,6 +13,7 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Link } from 'react-router-dom'
+import { typeIcon } from '../utils'
 import type { Notification } from '@/types'
 
 export function NotificationBell({ variant = 'light' }: { variant?: 'light' | 'dark' }) {
@@ -31,21 +32,6 @@ export function NotificationBell({ variant = 'light' }: { variant?: 'light' | 'd
       markAsRead.mutate(notification.id)
     }
     setOpen(false)
-  }
-
-  const typeIcon = (type: string) => {
-    switch (type) {
-      case 'absence_request':
-      case 'absence_approved':
-      case 'absence_rejected':
-        return '📅'
-      case 'period_approval':
-      case 'period_approved':
-      case 'period_rejected':
-        return '📄'
-      default:
-        return '🔔'
-    }
   }
 
   if (!user) return null

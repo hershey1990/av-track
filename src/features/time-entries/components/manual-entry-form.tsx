@@ -71,7 +71,6 @@ export function ManualEntryForm({
   }, [concept, conceptField.field, isEditing]);
 
   const onSubmit = async (values: TimeEntryFormData) => {
-    console.error("DIAG submit", JSON.stringify(values));
     const hours = calcHours(values.start_time, values.end_time);
 
     if (hours <= 0) {
@@ -96,20 +95,15 @@ export function ManualEntryForm({
         await createEntry.mutateAsync({ userId, values });
       }
       onSaved?.();
-    } catch (error) {
-      console.error("DIAG error", JSON.stringify(error));
+    } catch {
       // El toast lo muestra el MutationCache global (ver main.tsx).
     }
-  };
-
-  const onInvalid = (errors: unknown) => {
-    console.error("DIAG invalid", JSON.stringify(errors));
   };
 
   const now = getNicaraguaDateTime();
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label

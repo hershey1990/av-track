@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDateFull } from "@/lib/timezone";
-import { calcPeriodSummary, generatePeriodDays } from "@/lib/calculations";
+import { generatePeriodDays } from "@/lib/calculations";
 
 export default function UserEntriesPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,14 +27,6 @@ export default function UserEntriesPage() {
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   const { data: entries } = usePeriodEntries(id, selectedPeriodId ?? undefined);
   const selectedPeriod = periods?.find((p) => p.id === selectedPeriodId);
-
-  const summary = useMemo(
-    () =>
-      entries && targetProfile
-        ? calcPeriodSummary(entries, targetProfile.type, targetProfile.viatico)
-        : null,
-    [entries, targetProfile],
-  );
 
   const allPeriodDays = useMemo(
     () =>
@@ -105,7 +97,7 @@ export default function UserEntriesPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Registros</CardTitle>
-          {allPeriodDays && targetProfile && selectedPeriod && summary && (
+          {allPeriodDays && targetProfile && selectedPeriod && (
             <div className="flex gap-2">
               <ExcelExport
                 days={allPeriodDays}
