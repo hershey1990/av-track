@@ -1,16 +1,21 @@
-"use client"
+"use client";
 
-import { useController, type Control, type FieldValues, type Path } from 'react-hook-form'
-import { DatePicker } from './date-picker'
-import { Label } from './label'
+import {
+  useController,
+  type Control,
+  type FieldValues,
+  type Path,
+} from "react-hook-form";
+import { DatePicker } from "./date-picker";
+import { Label } from "./label";
 
 interface FormFieldDatePickerProps<TFieldValues extends FieldValues> {
-  control: Control<TFieldValues>
-  name: Path<TFieldValues>
-  label: string
-  placeholder?: string
-  min?: string
-  max?: string
+  control: Control<TFieldValues>;
+  name: Path<TFieldValues>;
+  label: string;
+  placeholder?: string;
+  min?: string;
+  max?: string;
 }
 
 /**
@@ -27,15 +32,14 @@ export function FormFieldDatePicker<TFieldValues extends FieldValues>({
   min,
   max,
 }: FormFieldDatePickerProps<TFieldValues>) {
-  const { field, fieldState } = useController({ control, name })
+  const { field, fieldState } = useController({ control, name });
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
+      <Label>{label}</Label>
       <DatePicker
-        id={name}
         value={field.value || undefined}
-        onValueChange={(value) => field.onChange(value ?? '')}
+        onValueChange={(value) => field.onChange(value ?? "")}
         placeholder={placeholder}
         min={min}
         max={max}
@@ -45,5 +49,5 @@ export function FormFieldDatePicker<TFieldValues extends FieldValues>({
         <p className="text-xs text-destructive">{fieldState.error.message}</p>
       )}
     </div>
-  )
+  );
 }

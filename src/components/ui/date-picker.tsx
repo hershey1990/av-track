@@ -1,27 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import {
-  NICARAGUA_TIMEZONE,
-  fromDateOnly,
-  toDateOnly,
-} from "@/lib/timezone";
+import { fromDateOnly, toDateOnly } from "@/lib/timezone";
 
 /**
- * Selectores de fecha basados en `react-day-picker` (vía el `Calendar` de
- * shadcn), en lugar de los `<input type="date">` nativos.
+ * Selectores de fecha basados en el `DatePicker` de shadcn (composición de
+ * `Popover` + `Calendar`), en lugar de los `<input type="date">` nativos.
+ *
+ * Patrón taken de https://ui.shadcn.com/docs/components/base/date-picker
  *
  * Motivo: el input nativo delega en el widget del sistema operativo, cuyo
  * aspecto cambia entre navegadores y sistemas, no se puede estilar y en
@@ -30,28 +27,7 @@ import {
  *
  * El valor sigue siendo un string "yyyy-MM-dd" (mismo formato que la BD), de
  * modo que los formularios y las queries no cambian.
- *
- * ## Detalle de implementación
- *
- * El calendario **no** usa `onSelect` de `react-day-picker`, sino
- * `onDayClick`. Con `timeZone` fijado, la fecha que entrega `onSelect` no
- * coincide con el día pulsado; y en `mode="single"` dentro de un `<form>` el
- * popover se cierra antes de aplicar la fecha. `onDayClick` entrega siempre
- * el día exacto, igual que en la vista de calendario de la app.
- *
- * Además, el popover se mantiene abierto ante cierres que no son
- * explícitos del usuario: al montarse el calendario bajo el cursor, el
- * `mouseup` cae sobre él y el navegador despacha el `click` al ancestro
- * común, lo que Base UI interpreta como un cierre.
  */
-
-/** Motivos de cierre que sí deben cerrar el popover. */
-const EXPLICIT_CLOSE_REASONS = new Set([
-  "escape-key",
-  "outside-press",
-  "close-press",
-  "trigger-press",
-]);
 
 interface DatePickerProps {
   /** Fecha seleccionada en formato "yyyy-MM-dd". */
@@ -61,10 +37,6 @@ interface DatePickerProps {
   placeholder?: string;
   id?: string;
   disabled?: boolean;
-  /** Fecha mínima seleccionable ("yyyy-MM-dd"). */
-  min?: string;
-  /** Fecha máxima seleccionable ("yyyy-MM-dd"). */
-  max?: string;
   className?: string;
   /** Se marca el campo como inválido (validación de formularios). */
   "aria-invalid"?: boolean;
@@ -77,74 +49,56 @@ export function DatePicker({
   placeholder = "Elegí una fecha",
   id,
   disabled,
-  min,
-  max,
   className,
   "aria-invalid": ariaInvalid,
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
-
-  const selected = React.useMemo(
-    () => (value ? fromDateOnly(value) : undefined),
-    [value],
+  const [date, setDate] = React.useState<Date | undefined>(
+    value ? fromDateOnly(value) : undefined,
   );
 
-  const disabledDays = React.useMemo(
-    () => [
-      ...(min ? [{ before: fromDateOnly(min) }] : []),
-      ...(max ? [{ after: fromDateOnly(max) }] : []),
-    ],
-    [min, max],
-  );
+  // Sincroniza el estado interno cuando el valor cambia desde fuera
+  // (p. ej. al editar otra entrada).
+  React.useEffect(() => {
+    setDate(value ? fromDateOnly(value) : undefined);
+  }, [value]);
 
-  const handleDayClick = (day: Date) => {
-    onValueChange?.(toDateOnly(day));
-    setOpen(false);
+  const handleSelect = (next: Date | undefined) => {
+    setDate(next);
+    onValueChange?.(next ? toDateOnly(next) : undefined);
   };
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next, details) => {
-        if (!next && !EXPLICIT_CLOSE_REASONS.has(details?.reason ?? "")) {
-          return;
-        }
-        setOpen(next);
-      }}
-    >
-      <PopoverTrigger
-        type="button"
-        id={id}
-        disabled={disabled}
-        aria-invalid={ariaInvalid ? true : undefined}
-        className={cn(
-          buttonVariants({ variant: "outline" }),
-          "h-9 w-full justify-start gap-2 px-3 font-normal",
-          !value && "text-muted-foreground",
-          className,
-        )}
-      >
-        <CalendarIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">
-          {value
-            ? format(fromDateOnly(value), "d 'de' MMM, yyyy", { locale: es })
-            : placeholder}
-        </span>
-      </PopoverTrigger>
+    <div aria-invalid={ariaInvalid || undefined}>
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              id={id}
+              variant="outline"
+              disabled={disabled}
+              data-empty={!date}
+              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground ${className ?? ""}`}
+            />
+          }
+        >
+          <CalendarIcon className="h-4 w-4 shrink-0" />
+          {date ? (
+            format(date, "d 'de' MMM, yyyy", { locale: es })
+          ) : (
+            <span>{placeholder}</span>
+          )}
+        </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-auto p-0" sideOffset={4}>
-        <Calendar
-          mode="range"
-          locale={es}
-          timeZone={NICARAGUA_TIMEZONE}
-          selected={selected ? { from: selected, to: selected } : undefined}
-          defaultMonth={selected}
-          onSelect={() => {}}
-          onDayClick={handleDayClick}
-          disabled={disabledDays}
-        />
-      </PopoverContent>
-    </Popover>
+        <PopoverContent className="w-auto p-0" align="start" side="bottom">
+          <Calendar
+            mode="single"
+            locale={es}
+            selected={date}
+            onSelect={handleSelect}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
 
@@ -176,90 +130,73 @@ export function DateRangePicker({
   className,
   "aria-invalid": ariaInvalid,
 }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false);
+  const [range, setRange] = React.useState<
+    { from: Date | undefined; to: Date | undefined } | undefined
+  >(() =>
+    from || to
+      ? {
+          from: from ? fromDateOnly(from) : undefined,
+          to: to ? fromDateOnly(to) : undefined,
+        }
+      : undefined,
+  );
 
-  const selected = React.useMemo(
-    () =>
+  React.useEffect(() => {
+    setRange(
       from || to
         ? {
             from: from ? fromDateOnly(from) : undefined,
             to: to ? fromDateOnly(to) : undefined,
           }
         : undefined,
-    [from, to],
-  );
+    );
+  }, [from, to]);
 
-  /**
-   * Lógica del rango sobre el día pulsado:
-   *
-   * - Sin rango en curso → el día pulsado es el inicio.
-   * - Con inicio y sin fin → el día pulsado es el fin (se ordena el rango).
-   * - Con rango completo → el día pulsado empieza un rango nuevo.
-   */
-  const handleDayClick = (day: Date) => {
-    const key = toDateOnly(day);
-    if (!key) return;
-
-    if (from && !to) {
-      const start = from <= key ? from : key;
-      const end = from <= key ? key : from;
-      onRangeChange?.(start, end);
-      setOpen(false);
-      return;
-    }
-
-    onRangeChange?.(key, undefined);
+  const handleSelect = (next: {
+    from: Date | undefined;
+    to?: Date | undefined;
+  }) => {
+    setRange(next);
+    onRangeChange?.(
+      next.from ? toDateOnly(next.from) : undefined,
+      next.to ? toDateOnly(next.to) : undefined,
+    );
   };
 
   const label = from
     ? to
-      ? `${formatDateLabel(from)} — ${formatDateLabel(to)}`
-      : `${formatDateLabel(from)} — …`
+      ? `${format(fromDateOnly(from), "d MMM yyyy", { locale: es })} — ${format(fromDateOnly(to), "d MMM yyyy", { locale: es })}`
+      : `${format(fromDateOnly(from), "d MMM yyyy", { locale: es })} — …`
     : placeholder;
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next, details) => {
-        if (!next && !EXPLICIT_CLOSE_REASONS.has(details?.reason ?? "")) {
-          return;
-        }
-        setOpen(next);
-      }}
-    >
-      <PopoverTrigger
-        type="button"
-        id={id}
-        disabled={disabled}
-        aria-invalid={ariaInvalid ? true : undefined}
-        className={cn(
-          buttonVariants({ variant: "outline" }),
-          "h-9 w-full justify-start gap-2 px-3 font-normal",
-          !from && "text-muted-foreground",
-          className,
-        )}
-      >
-        <CalendarIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">{label}</span>
-      </PopoverTrigger>
+    <div aria-invalid={ariaInvalid || undefined}>
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              id={id}
+              variant="outline"
+              disabled={disabled}
+              data-empty={!from}
+              className={`w-full justify-start gap-2 font-normal data-[empty=true]:text-muted-foreground ${className ?? ""}`}
+            />
+          }
+        >
+          <CalendarIcon className="h-4 w-4 shrink-0" />
+          <span>{label}</span>
+        </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-auto p-0" sideOffset={4}>
-        <Calendar
-          mode="range"
-          locale={es}
-          timeZone={NICARAGUA_TIMEZONE}
-          selected={selected}
-          defaultMonth={selected?.from}
-          onSelect={() => {}}
-          onDayClick={handleDayClick}
-          numberOfMonths={2}
-        />
-      </PopoverContent>
-    </Popover>
+        <PopoverContent className="w-auto p-0" align="start" side="bottom">
+          <Calendar
+            mode="range"
+            locale={es}
+            selected={range}
+            onSelect={handleSelect}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
-}
-
-/** "20 oct 2026" a partir de un "yyyy-MM-dd". */
-function formatDateLabel(dateStr: string): string {
-  return format(fromDateOnly(dateStr), "d MMM yyyy", { locale: es });
 }

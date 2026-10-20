@@ -81,6 +81,7 @@ export function AbsenceRequestCard({ userId, onSuccess }: Props) {
             name="type"
             label="Tipo"
             options={ABSENCE_TYPES}
+            modal={false}
           />
 
           <div className="grid grid-cols-2 gap-4">

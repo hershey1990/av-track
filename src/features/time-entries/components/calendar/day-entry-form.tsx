@@ -141,7 +141,9 @@ function DayEntryFields({
               <TimePicker
                 id={`day-start-${date}`}
                 value={startField.field.value || undefined}
-                onValueChange={(value) => startField.field.onChange(value ?? "")}
+                onValueChange={(value) =>
+                  startField.field.onChange(value ?? "")
+                }
                 placeholder="--:--"
                 aria-invalid={startField.fieldState.invalid}
               />

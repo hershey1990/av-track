@@ -72,18 +72,23 @@ export default function HistoryPage() {
                   placeholder="Elegí un rango"
                 />
               </div>
-              <div className="space-y-1.5">
-                <p className="text-sm text-muted-foreground">
-                  Mostrando del{" "}
-                  <span className="font-medium text-foreground">
-                    {formatDateFull(from)}
-                  </span>{" "}
-                  al{" "}
-                  <span className="font-medium text-foreground">
-                    {formatDateFull(effectiveTo)}
-                  </span>
-                  .
-                </p>
+              <div className="flex flex-col gap-1.5">
+                {/* Reserva la altura de la etiqueta para que el texto quede a
+                    la misma altura que el selector de rango. */}
+                <span aria-hidden className="hidden h-3.5 sm:block" />
+                <div className="flex h-8 items-center">
+                  <p className="text-sm text-muted-foreground">
+                    Mostrando del{" "}
+                    <span className="font-medium text-foreground">
+                      {formatDateFull(from)}
+                    </span>{" "}
+                    al{" "}
+                    <span className="font-medium text-foreground">
+                      {formatDateFull(effectiveTo)}
+                    </span>
+                    .
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>

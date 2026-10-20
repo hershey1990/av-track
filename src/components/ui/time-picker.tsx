@@ -49,9 +49,11 @@ export function TimePicker({
   minuteStep = 15,
 }: TimePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const [hour, setHour] = React.useState<string>(() => value?.slice(0, 2) ?? "");
-  const [minute, setMinute] = React.useState<string>(() =>
-    value?.slice(3, 5) ?? "",
+  const [hour, setHour] = React.useState<string>(
+    () => value?.slice(0, 2) ?? "",
+  );
+  const [minute, setMinute] = React.useState<string>(
+    () => value?.slice(3, 5) ?? "",
   );
 
   // Si el valor cambia desde fuera (p. ej. al editar otra entrada), se
@@ -64,9 +66,8 @@ export function TimePicker({
   const hours = Array.from({ length: 24 }, (_, i) =>
     String(i).padStart(2, "0"),
   );
-  const minutes = Array.from(
-    { length: Math.floor(60 / minuteStep) },
-    (_, i) => String(i * minuteStep).padStart(2, "0"),
+  const minutes = Array.from({ length: Math.floor(60 / minuteStep) }, (_, i) =>
+    String(i * minuteStep).padStart(2, "0"),
   );
 
   const commit = (nextHour: string, nextMinute: string) => {
@@ -127,7 +128,8 @@ export function TimePicker({
                   onClick={() => handlePickHour(h)}
                   className={cn(
                     "block w-full px-2 py-1.5 text-left font-mono text-sm tabular-nums transition-colors hover:bg-accent hover:text-accent-foreground",
-                    hour === h && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+                    hour === h &&
+                      "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
                   )}
                 >
                   {h}
@@ -148,7 +150,8 @@ export function TimePicker({
                   onClick={() => handlePickMinute(m)}
                   className={cn(
                     "block w-full px-2 py-1.5 text-left font-mono text-sm tabular-nums transition-colors hover:bg-accent hover:text-accent-foreground",
-                    minute === m && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+                    minute === m &&
+                      "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
                   )}
                 >
                   {m}

@@ -13,10 +13,7 @@ import {
   calcHours,
   getStandardHours,
 } from "@/lib/calculations";
-import {
-  getNicaraguaDateTime,
-  getTodayNicaragua,
-} from "@/lib/timezone";
+import { getNicaraguaDateTime, getTodayNicaragua } from "@/lib/timezone";
 import type { EmploymentType, TimeEntry } from "@/types";
 
 interface Props {
@@ -59,10 +56,16 @@ export function ManualEntryForm({
     },
   });
 
-  const startField = useController({ control: form.control, name: "start_time" });
+  const startField = useController({
+    control: form.control,
+    name: "start_time",
+  });
   const endField = useController({ control: form.control, name: "end_time" });
   const dateField = useController({ control: form.control, name: "date" });
-  const conceptField = useController({ control: form.control, name: "concept" });
+  const conceptField = useController({
+    control: form.control,
+    name: "concept",
+  });
 
   // El concepto se escribe en la barra superior; en modo creación lo tomamos
   // de ahí. En edición manda el valor de la entrada.
