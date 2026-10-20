@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useUser } from '@/hooks/use-user'
@@ -13,7 +13,6 @@ import { userEditSchema, type UserEditFormData } from '@/features/admin/schemas'
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { user: currentUser } = useUser()
   const { data: currentProfile, isLoading: profileLoading } = useProfile(currentUser?.id)
   const { data: targetProfile, isLoading } = useProfile(id)
@@ -47,13 +46,13 @@ export default function UserDetailPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-semibold tracking-tight">{targetProfile.full_name}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{targetProfile.full_name}</h1>
         <Badge variant="outline" className="capitalize">{targetProfile.role}</Badge>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-heading">Editar usuario</CardTitle>
+          <CardTitle>Editar usuario</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">

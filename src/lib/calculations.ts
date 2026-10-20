@@ -41,7 +41,7 @@ export function calcNightHours(
 
   const ns = timeToMinutes(nightStart)
   const ne = timeToMinutes(nightEnd)
-  let totalNight = 0
+  let totalNight: number
 
   if (ns > ne) {
     // Night window crosses midnight (e.g. 19:00-06:00)
@@ -194,7 +194,7 @@ export function calcDay(
   const holiday = isHoliday(dateStr, holidays)
 
   // Calculate regular vs night hours
-  let regularHours = hours
+  let regularHours: number
   let nightHours = 0
   let nightSurcharge = 0
   let sundaySurcharge = 0
@@ -270,6 +270,18 @@ export function calcPeriodSummary(
 
 export function formatTime(time: string): string {
   return time.substring(0, 5)
+}
+
+/**
+ * Format a duration expressed in seconds as "H:MM:SS".
+ * Used by the tracker header (live stopwatch) and by the day totals.
+ */
+export function formatDurationHMS(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds))
+  const hours = Math.floor(s / 3600)
+  const minutes = Math.floor((s % 3600) / 60)
+  const seconds = s % 60
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
 export function formatHours(hours: number): string {

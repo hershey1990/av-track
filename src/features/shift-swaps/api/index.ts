@@ -3,6 +3,26 @@
 import { getSupabase } from '@/lib/supabase/client'
 import type { ShiftSwap } from '@/types'
 
+/** Colegas disponibles para solicitar un cambio de turno. */
+export interface Colleague {
+  id: string
+  full_name: string
+  type: string
+}
+
+/**
+ * Lista los compañeros de la empresa (id + nombre) mediante la función
+ * `public.list_colleagues()`.  Se usa una RPC en lugar de leer `profiles`
+ * directamente porque las políticas de RLS sólo permiten ver la propia fila
+ * a los empleados que no son admin.
+ */
+export async function getColleagues(): Promise<Colleague[]> {
+  const supabase = getSupabase()
+  const { data, error } = await supabase.rpc('list_colleagues')
+  if (error) throw error
+  return (data ?? []) as Colleague[]
+}
+
 export async function getMySwapRequests(userId: string): Promise<ShiftSwap[]> {
   const supabase = getSupabase()
   const { data, error } = await supabase

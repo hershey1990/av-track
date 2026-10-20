@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatDateShort } from '@/lib/timezone'
 import { Check, X, Trash2 } from 'lucide-react'
-import type { Absence } from '@/types'
 
 const TYPE_LABELS: Record<string, string> = {
   vacation: 'Vacaciones',
@@ -35,7 +34,7 @@ export function AdminAbsenceList() {
   if (!absences || absences.length === 0) {
     return (
       <Card>
-        <CardHeader><CardTitle className="text-lg font-heading">Solicitudes de ausencia</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Solicitudes de ausencia</CardTitle></CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">Sin solicitudes pendientes</p>
         </CardContent>
@@ -54,7 +53,7 @@ export function AdminAbsenceList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-heading">Solicitudes de ausencia</CardTitle>
+        <CardTitle>Solicitudes de ausencia</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {absences.map((a) => (

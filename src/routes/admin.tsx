@@ -26,13 +26,13 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-heading font-semibold tracking-tight">Panel Admin</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Panel Admin</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           <AdminAbsenceList />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-heading">Configuración</CardTitle>
+              <CardTitle>Configuración</CardTitle>
               <Link to="/admin/policy">
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <Settings className="h-4 w-4" /> Gestionar

@@ -2,47 +2,36 @@ import { cn } from '@/lib/utils'
 
 interface BrandLogoProps {
   className?: string
-  showMark?: boolean
-  showWordmark?: boolean
   size?: 'sm' | 'md' | 'lg'
+  /** `light` para fondos oscuros (sidebar), `dark` para fondos claros */
+  variant?: 'light' | 'dark'
 }
 
 const sizeClasses = {
-  sm: { mark: 'h-7 w-7 text-xs', wordmark: 'text-xl' },
-  md: { mark: 'h-8 w-8 text-sm', wordmark: 'text-2xl' },
-  lg: { mark: 'h-10 w-10 text-base', wordmark: 'text-3xl' },
+  sm: 'text-base',
+  md: 'text-[19px]',
+  lg: 'text-3xl',
 }
 
 export function BrandLogo({
   className,
-  showMark = true,
-  showWordmark = true,
   size = 'md',
+  variant = 'dark',
 }: BrandLogoProps) {
-  const classes = sizeClasses[size]
-
   return (
-    <div className={cn('inline-flex items-center gap-2', className)}>
-      {showMark && (
-        <span
-          className={cn(
-            'flex items-center justify-center rounded-md bg-primary text-primary-foreground font-heading font-bold leading-none tracking-tight',
-            classes.mark,
-          )}
-        >
-          BB
-        </span>
-      )}
-      {showWordmark && (
-        <span
-          className={cn(
-            'font-heading font-semibold tracking-tight text-foreground uppercase',
-            classes.wordmark,
-          )}
-        >
-          BB
-        </span>
-      )}
-    </div>
+    <span className={cn('inline-flex items-baseline gap-1 leading-none', className)}>
+      <span className={cn('font-extrabold tracking-tight text-primary', sizeClasses[size])}>
+        BB
+      </span>
+      <span
+        className={cn(
+          'font-light tracking-tight',
+          sizeClasses[size],
+          variant === 'light' ? 'text-sidebar-foreground/90' : 'text-foreground/75',
+        )}
+      >
+        track
+      </span>
+    </span>
   )
 }

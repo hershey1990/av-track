@@ -39,7 +39,7 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
       label: 'Horas hoy',
       value: todayHours !== null ? `${todayHours.toFixed(1)}h` : '—',
       sub: `${getStandardHours(profileType)}h estándar`,
-      color: 'bg-primary/10 text-primary',
+      color: 'bg-chart-2/12 text-chart-2',
     },
     {
       icon: Zap,
@@ -49,21 +49,21 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
         extraHours !== null && extraHours > 0
           ? 'Por encima del estándar'
           : 'Dentro del estándar',
-      color: 'bg-brand-gold/15 text-amber-700',
+      color: 'bg-chart-3/15 text-chart-3',
     },
     {
       icon: Banknote,
       label: 'Viático hoy',
       value: hasViatico ? `C$${viaticoRate.toFixed(0)}` : '—',
       sub: hasViatico ? '¡Aplica!' : 'No aplica',
-      color: 'bg-emerald-500/10 text-emerald-700',
+      color: 'bg-chart-4/12 text-chart-4',
     },
     {
       icon: CalendarDays,
       label: 'Total período',
       value: periodTotalHours !== undefined ? `${periodTotalHours.toFixed(1)}h` : '—',
       sub: 'Período activo',
-      color: 'bg-slate-500/10 text-slate-700',
+      color: 'bg-chart-5/12 text-chart-5',
     },
     {
       icon: Timer,
@@ -74,17 +74,17 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
       sub: periodTotalExtraHours !== undefined && periodTotalExtraHours > 0
         ? 'Total horas extra'
         : 'Sin horas extra',
-      color: 'bg-rose-500/10 text-rose-700',
+      color: 'bg-chart-1/12 text-chart-1',
     },
   ]
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {kpis.map((kpi) => (
-        <Card key={kpi.label}>
+        <Card key={kpi.label} size="sm">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                 {kpi.label}
               </span>
               <div
@@ -93,7 +93,7 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
                 <kpi.icon className="h-4 w-4" />
               </div>
             </div>
-            <span className="text-2xl sm:text-3xl font-heading font-semibold tracking-tight">
+            <span className="text-2xl font-semibold tracking-tight tabular-nums">
               {kpi.value}
             </span>
             <span className="text-xs text-muted-foreground leading-tight">
