@@ -9,6 +9,7 @@ import { lazy, Suspense } from "react";
 const LoginPage = lazy(() => import("@/routes/login"));
 const RegisterPage = lazy(() => import("@/routes/register"));
 const DashboardPage = lazy(() => import("@/routes/dashboard"));
+const CalendarPage = lazy(() => import("@/routes/calendar"));
 const HistoryPage = lazy(() => import("@/routes/history"));
 const ReportPage = lazy(() => import("@/routes/report"));
 const SettingsPage = lazy(() => import("@/routes/settings"));
@@ -66,6 +67,7 @@ export function App() {
           {/* Protected routes */}
           <Route element={<ProtectedLayout />}>
             <Route index element={<DashboardPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/report" element={<ReportPage />} />
             <Route path="/settings" element={<SettingsPage />} />

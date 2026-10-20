@@ -13,6 +13,7 @@ import {
   Settings,
   CalendarDays,
   Repeat,
+  CalendarRange,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -50,6 +51,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: 'TRACK',
     items: [
       { label: 'Timer', icon: Timer, to: '/', exact: true },
+      { label: 'Calendario', icon: CalendarRange, to: '/calendar' },
     ],
   },
   {

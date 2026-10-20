@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { colorForConcept } from "./concept-color";
 import type { TimeEntry } from "@/types";
 
 /** Duración de cada tramo del eje temporal. */
@@ -14,30 +15,12 @@ const AXIS_HEIGHT = 26;
 const BAND_HEIGHT = 9;
 const CHART_HEIGHT = BARS_HEIGHT + AXIS_HEIGHT + BAND_HEIGHT;
 
-/** Colores de la banda inferior, en el orden en que se usan. */
-const BAND_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-5)",
-  "var(--chart-4)",
-];
-
 /** Etiquetas del eje: 0:00 → 18:00 (como en la referencia de toggl Track) */
 const AXIS_TICKS = [0, 3, 6, 9, 12, 15, 18];
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
   return (h || 0) * 60 + (m || 0);
-}
-
-/** Color estable para un concepto, derivado de su texto. */
-function colorForConcept(concept: string): string {
-  let hash = 0;
-  for (let i = 0; i < concept.length; i++) {
-    hash = (hash * 31 + concept.charCodeAt(i)) >>> 0;
-  }
-  return BAND_COLORS[hash % BAND_COLORS.length];
 }
 
 interface Slot {

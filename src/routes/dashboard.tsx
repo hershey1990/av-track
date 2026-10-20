@@ -11,6 +11,7 @@ import {
 import { DashboardKpiCards } from "@/features/time-entries/components/dashboard-kpi";
 import { TimelineChart } from "@/features/time-entries/components/timeline-chart";
 import { EntriesList } from "@/features/time-entries/components/entries-list";
+import { ViewSwitch } from "@/features/time-entries/components/calendar/view-switch";
 import { PeriodSummarySections } from "@/features/reports/components/period-summary-sections";
 import { calcPeriodSummary } from "@/lib/calculations";
 import {
@@ -50,15 +51,18 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {profile?.full_name ? `Hola, ${profile.full_name}` : "Hoy"}
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          {activePeriod
-            ? `Período activo: ${activePeriod.name}`
-            : "Sin período activo"}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {profile?.full_name ? `Hola, ${profile.full_name}` : "Hoy"}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {activePeriod
+              ? `Período activo: ${activePeriod.name}`
+              : "Sin período activo"}
+          </p>
+        </div>
+        <ViewSwitch />
       </div>
 
       {profile && (
