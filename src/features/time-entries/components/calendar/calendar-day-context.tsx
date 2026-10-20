@@ -1,6 +1,11 @@
 "use client";
 
-import { createContext, useContext, type Dispatch, type SetStateAction } from "react";
+import {
+  createContext,
+  useContext,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import type { EmploymentType, TimeEntry } from "@/types";
 
 export interface CalendarDayContextValue {
