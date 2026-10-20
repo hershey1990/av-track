@@ -22,11 +22,11 @@ export default function AdminPolicyPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-heading font-semibold tracking-tight">Configuración de política</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Configuración de política</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-heading">Entradas múltiples</CardTitle>
+          <CardTitle>Entradas múltiples</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">

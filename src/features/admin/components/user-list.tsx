@@ -9,11 +9,15 @@ export function UserList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-heading">Usuarios</CardTitle>
+        <CardTitle>Usuarios</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        {isLoading && <p className="text-muted-foreground text-sm">Cargando...</p>}
-        {isError && <p className="text-destructive text-sm">Error al cargar usuarios</p>}
+        {isLoading && (
+          <p className="text-muted-foreground text-sm">Cargando...</p>
+        )}
+        {isError && (
+          <p className="text-destructive text-sm">Error al cargar usuarios</p>
+        )}
         {!isLoading && !isError && profiles?.length === 0 && (
           <p className="text-muted-foreground text-sm">No hay usuarios</p>
         )}
@@ -28,7 +32,10 @@ export function UserList() {
                   {p.type === "fulltime" ? "FT" : "PT"}
                 </Badge>
               </div>
-              <Badge variant={p.role === "admin" ? "outline" : "ghost"} className="capitalize">
+              <Badge
+                variant={p.role === "admin" ? "outline" : "ghost"}
+                className="capitalize"
+              >
                 {p.role}
               </Badge>
             </div>

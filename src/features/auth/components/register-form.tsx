@@ -30,7 +30,7 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-heading tracking-tight">Registrarse</CardTitle>
+        <CardTitle className="text-xl font-semibold tracking-tight">Registrarse</CardTitle>
         <CardDescription>Creá tu cuenta para empezar</CardDescription>
       </CardHeader>
       <CardContent>

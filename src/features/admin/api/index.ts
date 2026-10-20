@@ -12,9 +12,3 @@ export async function getAllProfiles(): Promise<Profile[]> {
   if (error) throw error
   return data
 }
-
-export async function updateProfile(id: string, values: Partial<Profile>): Promise<void> {
-  const supabase = getSupabase()
-  const { error } = await supabase.from('profiles').update(values).eq('id', id)
-  if (error) throw error
-}

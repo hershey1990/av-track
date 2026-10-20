@@ -9,9 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-heading: "Aref Ruqaa", ui-serif, Georgia, serif;
-  --color-brand-gold: var(--brand-gold);
-  --color-brand-red: var(--brand-red);
+  --font-heading: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -51,40 +49,46 @@
 }
 
 :root {
-  --background: oklch(0.995 0.002 95);
-  --foreground: oklch(0.2 0.01 75);
+  /* ── Superficies ─────────────────────────────────────── */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.01 75);
+  --card-foreground: oklch(0.18 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.01 75);
-  --primary: oklch(0.55 0.205 25);
+  --popover-foreground: oklch(0.18 0 0);
+  --secondary: oklch(0.975 0 0);
+  --secondary-foreground: oklch(0.25 0 0);
+  --muted: oklch(0.975 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.96 0.02 350);
+  --accent-foreground: oklch(0.25 0.02 350);
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.63 0.21 350);
+
+  /* ── Acento principal (rosa toggl) ───────────────────── */
+  --primary: oklch(0.63 0.21 350);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.97 0.01 90);
-  --secondary-foreground: oklch(0.25 0.01 75);
-  --muted: oklch(0.96 0.005 95);
-  --muted-foreground: oklch(0.55 0.01 75);
-  --accent: oklch(0.92 0.04 85);
-  --accent-foreground: oklch(0.25 0.02 75);
-  --destructive: oklch(0.55 0.205 25);
-  --border: oklch(0.9 0.005 90);
-  --input: oklch(0.92 0.005 90);
-  --ring: oklch(0.72 0.08 85);
-  --chart-1: oklch(0.55 0.205 25);
-  --chart-2: oklch(0.72 0.08 85);
-  --chart-3: oklch(0.65 0.06 75);
-  --chart-4: oklch(0.45 0.04 55);
-  --chart-5: oklch(0.35 0.03 45);
-  --radius: 0.375rem;
-  --brand-red: oklch(0.55 0.205 25);
-  --brand-gold: oklch(0.72 0.08 85);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.2 0.01 75);
-  --sidebar-primary: oklch(0.55 0.205 25);
+
+  /* ── Paleta de gráficas / etiquetas ──────────────────── */
+  --chart-1: oklch(0.63 0.21 350);
+  --chart-2: oklch(0.65 0.16 250);
+  --chart-3: oklch(0.78 0.15 75);
+  --chart-4: oklch(0.68 0.15 155);
+  --chart-5: oklch(0.60 0.22 305);
+
+  --radius: 0.5rem;
+
+  /* ── Sidebar (eggplant toggl) ────────────────────────── */
+  --sidebar: oklch(0.28 0.07 300);
+  --sidebar-foreground: oklch(0.96 0.01 300);
+  --sidebar-primary: oklch(0.63 0.21 350);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.97 0.01 90);
-  --sidebar-accent-foreground: oklch(0.25 0.01 75);
-  --sidebar-border: oklch(0.9 0.005 90);
-  --sidebar-ring: oklch(0.72 0.08 85);
+  --sidebar-accent: oklch(0.36 0.075 300);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(0.34 0.065 300);
+  --sidebar-ring: oklch(0.63 0.21 350);
 }
 
 @layer base {

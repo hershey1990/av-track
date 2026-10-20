@@ -13,8 +13,10 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Link } from 'react-router-dom'
+import { typeIcon } from '../utils'
+import type { Notification } from '@/types'
 
-export function NotificationBell() {
+export function NotificationBell({ variant = 'light' }: { variant?: 'light' | 'dark' }) {
   const { user } = useUser()
   const { data: notifications, unreadCount, isLoading } = useNotifications(user?.id)
   const markAsRead = useMarkAsRead()
@@ -25,43 +27,36 @@ export function NotificationBell() {
     markAllAsRead.mutate()
   }
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead.mutate(notification.id)
     }
     setOpen(false)
   }
 
-  const typeIcon = (type: string) => {
-    switch (type) {
-      case 'absence_request':
-      case 'absence_approved':
-      case 'absence_rejected':
-        return '📅'
-      case 'period_approval':
-      case 'period_approved':
-      case 'period_rejected':
-        return '📄'
-      default:
-        return '🔔'
-    }
-  }
-
   if (!user) return null
+
+  const isDark = variant === 'dark'
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="relative inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
+      <PopoverTrigger
+        className={
+          isDark
+            ? 'relative inline-flex items-center justify-center h-8 w-8 rounded-md text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-white transition-colors cursor-pointer'
+            : 'relative inline-flex items-center justify-center h-8 w-8 rounded-md text-foreground hover:bg-muted transition-colors cursor-pointer'
+        }
+      >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-sidebar-primary text-[10px] font-bold text-white ring-2 ring-sidebar">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <span className="text-sm font-heading font-medium">Notificaciones</span>
+          <span className="text-sm font-semibold">Notificaciones</span>
           {unreadCount > 0 && (
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={handleMarkAllRead}>
               <CheckCheck className="h-3 w-3" />

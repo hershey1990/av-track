@@ -11,14 +11,6 @@ export function usePeriods() {
   })
 }
 
-export function usePeriod(id: string | undefined) {
-  return useQuery({
-    queryKey: ['periods', id],
-    queryFn: () => api.getPeriod(id!),
-    enabled: !!id,
-  })
-}
-
 export function useCreatePeriod() {
   const queryClient = useQueryClient()
   return useMutation({

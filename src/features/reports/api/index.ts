@@ -14,17 +14,6 @@ export async function getPeriods(): Promise<Period[]> {
   return data
 }
 
-export async function getPeriod(id: string): Promise<Period> {
-  const supabase = getSupabase()
-  const { data, error } = await supabase
-    .from('periods')
-    .select('*')
-    .eq('id', id)
-    .single()
-  if (error) throw error
-  return data
-}
-
 export async function createPeriod(values: PeriodFormData & { created_by: string }): Promise<Period> {
   const supabase = getSupabase()
   const { data, error } = await supabase

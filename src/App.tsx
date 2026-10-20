@@ -1,42 +1,48 @@
-import { Routes, Route, Outlet } from 'react-router-dom'
-import { AuthGuard } from '@/components/auth-guard'
-import { GuestGuard } from '@/components/guest-guard'
-import { NavBar } from '@/components/nav-bar'
-import { PWARegister } from '@/components/pwa-register'
-import { lazy, Suspense } from 'react'
+import { Routes, Route, Outlet } from "react-router-dom";
+import { AuthGuard } from "@/components/auth-guard";
+import { GuestGuard } from "@/components/guest-guard";
+import { AppShell } from "@/components/app-shell";
+import { RunningTimerProvider } from "@/features/time-entries/hooks/running-timer-context";
+import { PWARegister } from "@/components/pwa-register";
+import { lazy, Suspense } from "react";
 
-const LoginPage = lazy(() => import('@/routes/login'))
-const RegisterPage = lazy(() => import('@/routes/register'))
-const DashboardPage = lazy(() => import('@/routes/dashboard'))
-const HistoryPage = lazy(() => import('@/routes/history'))
-const ReportPage = lazy(() => import('@/routes/report'))
-const SettingsPage = lazy(() => import('@/routes/settings'))
-const AdminPage = lazy(() => import('@/routes/admin'))
-const AdminPeriodsPage = lazy(() => import('@/routes/admin-periods'))
-const AdminUserDetailPage = lazy(() => import('@/routes/admin-user-detail'))
-const AdminUserEntriesPage = lazy(() => import('@/routes/admin-user-entries'))
-const AdminPolicyPage = lazy(() => import('@/routes/admin-policy'))
-const OfflinePage = lazy(() => import('@/routes/offline'))
+const LoginPage = lazy(() => import("@/routes/login"));
+const RegisterPage = lazy(() => import("@/routes/register"));
+const DashboardPage = lazy(() => import("@/routes/dashboard"));
+const CalendarPage = lazy(() => import("@/routes/calendar"));
+const HistoryPage = lazy(() => import("@/routes/history"));
+const ReportPage = lazy(() => import("@/routes/report"));
+const SettingsPage = lazy(() => import("@/routes/settings"));
+const NotificationsPage = lazy(() => import("@/routes/notifications"));
+const AbsencesPage = lazy(() => import("@/routes/absences"));
+const ShiftSwapsPage = lazy(() => import("@/routes/shift-swaps"));
+const AdminPage = lazy(() => import("@/routes/admin"));
+const AdminPeriodsPage = lazy(() => import("@/routes/admin-periods"));
+const AdminUserDetailPage = lazy(() => import("@/routes/admin-user-detail"));
+const AdminUserEntriesPage = lazy(() => import("@/routes/admin-user-entries"));
+const AdminPolicyPage = lazy(() => import("@/routes/admin-policy"));
+const OfflinePage = lazy(() => import("@/routes/offline"));
 
 function ProtectedLayout() {
   return (
     <AuthGuard>
-      <NavBar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
+      <RunningTimerProvider>
+        <AppShell>
+          <Outlet />
+        </AppShell>
+      </RunningTimerProvider>
     </AuthGuard>
-  )
+  );
 }
 
 function GuestLayout() {
   return (
     <GuestGuard>
-      <main className="flex-1 flex items-center justify-center px-4 py-12 bg-[radial-gradient(ellipse_at_top,_var(--background)_0%,_var(--muted)_100%)]">
+      <main className="flex flex-1 items-center justify-center bg-muted px-4 py-12">
         <Outlet />
       </main>
     </GuestGuard>
-  )
+  );
 }
 
 function Loading() {
@@ -44,7 +50,7 @@ function Loading() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="animate-spin h-8 w-8 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full" />
     </div>
-  )
+  );
 }
 
 export function App() {
@@ -61,14 +67,21 @@ export function App() {
           {/* Protected routes */}
           <Route element={<ProtectedLayout />}>
             <Route index element={<DashboardPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/report" element={<ReportPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/absences" element={<AbsencesPage />} />
+            <Route path="/shift-swaps" element={<ShiftSwapsPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/periods" element={<AdminPeriodsPage />} />
             <Route path="/admin/policy" element={<AdminPolicyPage />} />
             <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
-            <Route path="/admin/users/:id/entries" element={<AdminUserEntriesPage />} />
+            <Route
+              path="/admin/users/:id/entries"
+              element={<AdminUserEntriesPage />}
+            />
           </Route>
 
           {/* Public routes */}
@@ -77,5 +90,5 @@ export function App() {
       </Suspense>
       <PWARegister />
     </div>
-  )
+  );
 }

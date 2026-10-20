@@ -2,7 +2,13 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '../api'
-import type { ShiftSwap } from '@/types'
+
+export function useColleagues() {
+  return useQuery({
+    queryKey: ['shift-swaps', 'colleagues'],
+    queryFn: api.getColleagues,
+  })
+}
 
 export function useMySwapRequests(userId: string | undefined) {
   return useQuery({

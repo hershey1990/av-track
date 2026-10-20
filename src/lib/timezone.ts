@@ -7,6 +7,9 @@
  * browser / system timezone.
  */
 
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+
 export const NICARAGUA_TIMEZONE = 'America/Managua'
 
 /** Return today's date in Nicaragua as "yyyy-MM-dd". */
@@ -77,5 +80,69 @@ export function getMonthRangeNicaragua(): {
   return {
     firstDay: `${yearStr}-${monthStr}-01`,
     lastDay: `${yearStr}-${monthStr}-${String(lastDayNum).padStart(2, '0')}`,
+  }
+}
+
+/**
+ * Shift a "yyyy-MM-dd" date by a number of days.
+ * Uses UTC arithmetic so the result never drifts with the browser timezone.
+ */
+export function shiftDate(dateStr: string, days: number): string {
+  const { year, month, day } = parseDateOnly(dateStr)
+  const d = new Date(Date.UTC(year, month - 1, day))
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+/**
+ * Format a date-only string as "19 de oct".
+ * Safe for date-only values from the database.
+ */
+export function formatDayMonth(dateStr: string): string {
+  const { year, month, day } = parseDateOnly(dateStr)
+  return format(new Date(Date.UTC(year, month - 1, day, 12)), "d 'de' MMM", { locale: es })
+}
+
+/**
+ * Format a date-only string as "19 oct" (compact form used in the timeline).
+ */
+export function formatDayMonthShort(dateStr: string): string {
+  const { year, month, day } = parseDateOnly(dateStr)
+  return format(new Date(Date.UTC(year, month - 1, day, 12)), 'd MMM', { locale: es })
+}
+
+/**
+ * Format a date-only string as "octubre 2026" (month label).
+ * Safe for date-only values from the database.
+ */
+export function formatMonthYear(dateStr: string): string {
+  const { year, month, day } = parseDateOnly(dateStr)
+  return format(new Date(Date.UTC(year, month - 1, day, 12)), 'MMMM yyyy', { locale: es })
+}
+
+/**
+ * Return the Nicaragua-local calendar date and wall-clock time of a given
+ * instant.  Used by the live tracker to stamp entries with the correct
+ * local date/time regardless of the browser's timezone.
+ */
+export function getNicaraguaDateTime(date: Date = new Date()): {
+  date: string
+  time: string
+} {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: NICARAGUA_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  })
+  const parts = formatter.formatToParts(date)
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}`,
   }
 }
