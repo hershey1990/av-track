@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel, FieldContent, FieldError } from "@/components/ui/field";
+import {
+  Field,
+  FieldLabel,
+  FieldContent,
+  FieldError,
+} from "@/components/ui/field";
 import { FormFieldInput } from "@/components/ui/form-field-input";
 import {
   usePeriods,
@@ -119,9 +124,7 @@ export function PeriodForm({ userId, onSuccess, period, onCancel }: Props) {
   // preceder al inicio. En alta, el inicio no puede ser anterior al día
   // siguiente del fin del último período cerrado, y el rango no puede
   // solaparse con ningún período existente.
-  const startMin = isEditing
-    ? undefined
-    : getMinStartDate(otherPeriods, today);
+  const startMin = isEditing ? undefined : getMinStartDate(otherPeriods, today);
   const startMax = watchedEnd || undefined;
   const endMin = watchedStart || undefined;
   const endMax = isEditing
