@@ -34,6 +34,13 @@ export function describeDbError(error: unknown): string {
       return 'Ya existe un registro con esos datos'
     case '23503':
       return 'La referencia apunta a un registro que no existe'
+    case '23502':
+      return 'Falta un campo obligatorio en la base de datos'
+    case '23514':
+      return 'La operación viola una restricción de la base de datos (revisá los datos)'
+    case '22007':
+    case '22008':
+      return 'Formato de fecha o valor inválido para la base de datos'
     case 'PGRST116':
       return 'No se encontró el registro solicitado'
     default:
