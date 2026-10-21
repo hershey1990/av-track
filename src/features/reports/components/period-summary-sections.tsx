@@ -11,12 +11,22 @@ import {
   formatHours,
 } from "@/lib/calculations";
 import { formatMonthYear } from "@/lib/timezone";
-import type { DayCalculation, EmploymentType, TimeEntry } from "@/types";
+import type {
+  DayCalculation,
+  EmploymentType,
+  Holiday,
+  PolicyConfig,
+  TimeEntry,
+} from "@/types";
 
 interface Props {
   entries: TimeEntry[];
   type: EmploymentType;
   viaticoRate: number;
+  /** Política de recargos del país (activa nocturnos, dominicales y feriados) */
+  policy?: PolicyConfig;
+  /** Feriados del país (activa el recargo de feriado) */
+  holidays?: Holiday[];
   /** Título de la sección */
   title?: string;
   /** Mensaje mostrado cuando no hay registros */
@@ -43,14 +53,16 @@ export function PeriodSummarySections({
   entries,
   type,
   viaticoRate,
+  policy,
+  holidays,
   title = "Resumen del período",
   emptyMessage = "Sin registros en este período",
   headerAction,
   renderActions,
 }: Props) {
   const summary = useMemo(
-    () => calcPeriodSummary(entries, type, viaticoRate),
-    [entries, type, viaticoRate],
+    () => calcPeriodSummary(entries, type, viaticoRate, policy, holidays),
+    [entries, type, viaticoRate, policy, holidays],
   );
 
   const groups = useMemo<MonthGroup[]>(() => {

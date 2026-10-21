@@ -16,6 +16,7 @@ const SettingsPage = lazy(() => import("@/routes/settings"));
 const NotificationsPage = lazy(() => import("@/routes/notifications"));
 const AbsencesPage = lazy(() => import("@/routes/absences"));
 const ShiftSwapsPage = lazy(() => import("@/routes/shift-swaps"));
+const HolidaysPage = lazy(() => import("@/routes/holidays"));
 const AdminPage = lazy(() => import("@/routes/admin"));
 const AdminPeriodsPage = lazy(() => import("@/routes/admin-periods"));
 const AdminUserDetailPage = lazy(() => import("@/routes/admin-user-detail"));
@@ -74,6 +75,7 @@ export function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/absences" element={<AbsencesPage />} />
             <Route path="/shift-swaps" element={<ShiftSwapsPage />} />
+            <Route path="/holidays" element={<HolidaysPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/periods" element={<AdminPeriodsPage />} />
             <Route path="/admin/policy" element={<AdminPolicyPage />} />

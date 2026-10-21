@@ -2,6 +2,9 @@
 
 import type { ReactNode } from "react";
 import {
+  PartyPopper,
+} from "lucide-react";
+import {
   formatCurrency,
   formatDurationHMS,
   formatHours,
@@ -9,6 +12,7 @@ import {
 } from "@/lib/calculations";
 import { formatDateShort } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import type { DayCalculation } from "@/types";
 
 interface Props {
@@ -51,6 +55,18 @@ export function PeriodSummaryDayRow({
           <span className="ml-2 font-mono text-[11px] tabular-nums text-muted-foreground">
             #{slot}
           </span>
+        )}
+        {/* El festivo se muestra aparte: explica por qué ese día se paga doble. */}
+        {day.is_holiday && (
+          <Badge variant="secondary" className="ml-2 align-middle">
+            <PartyPopper data-icon="inline-start" />
+            {day.holiday_name ?? "Feriado"}
+            {holidayMultiplier(day) && (
+              <span className="ml-1 font-mono tabular-nums">
+                ×{holidayMultiplier(day)}
+              </span>
+            )}
+          </Badge>
         )}
       </span>
 
@@ -98,4 +114,15 @@ export function PeriodSummaryDayRow({
       )}
     </div>
   );
+}
+
+/**
+ * Multiplicador de pago del festivo (×2 con un recargo del 100%), deducido
+ * de los propios datos del día.
+ */
+function holidayMultiplier(day: DayCalculation): string | null {
+  if (day.holiday_hours <= 0 || day.holiday_surcharge <= 0) return null;
+  const pct = (day.holiday_surcharge / day.holiday_hours) * 100;
+  const multiplier = (100 + pct) / 100;
+  return Number.isInteger(multiplier) ? String(multiplier) : multiplier.toFixed(2);
 }

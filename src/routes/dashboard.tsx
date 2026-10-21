@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useUser } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-profile";
 import { usePeriods } from "@/features/reports/hooks/use-periods";
+import { usePolicyConfig } from "@/features/admin/hooks/use-policy-config";
+import { useHolidays } from "@/features/holidays/hooks/use-holidays";
 import {
   usePeriodEntries,
   useEntries,
@@ -24,8 +26,12 @@ export default function DashboardPage() {
   const { user } = useUser();
   const { data: profile } = useProfile(user?.id);
   const { data: periods } = usePeriods();
+  const { data: policy } = usePolicyConfig();
+  const { data: holidaysData } = useHolidays();
   const activePeriod = periods?.[0];
   const { data: entries } = usePeriodEntries(user?.id, activePeriod?.id);
+
+  const holidays = useMemo(() => holidaysData ?? [], [holidaysData]);
 
   const today = getTodayNicaragua();
   const [selectedDate, setSelectedDate] = useState(today);
@@ -42,9 +48,15 @@ export default function DashboardPage() {
   const summary = useMemo(
     () =>
       entries && profile
-        ? calcPeriodSummary(entries, profile.type, profile.viatico)
+        ? calcPeriodSummary(
+            entries,
+            profile.type,
+            profile.viatico,
+            policy ?? undefined,
+            holidays,
+          )
         : null,
-    [entries, profile],
+    [entries, profile, policy, holidays],
   );
 
   if (!user) return null;
@@ -102,6 +114,8 @@ export default function DashboardPage() {
               entries={entries}
               type={profile.type}
               viaticoRate={profile.viatico}
+              policy={policy ?? undefined}
+              holidays={holidays}
             />
           )}
         </>

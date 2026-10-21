@@ -334,6 +334,48 @@ describe('generatePeriodDays', () => {
     expect(result).toHaveLength(1)
     expect(result[0].date).toBe('2025-06-16')
   })
+
+  it('marks the holidays of the period and applies their surcharge', () => {
+    const entries = [makeEntry('2026-07-19', '08:00', '17:00')]
+    const holidays: Holiday[] = [
+      { id: 'h1', country_id: '1', date: '2026-07-19', name: 'Revolución Sandinista' },
+    ]
+    const policy: PolicyConfig = {
+      id: '1',
+      country_id: '1',
+      night_start: '19:00',
+      night_end: '06:00',
+      night_surcharge_pct: 25,
+      sunday_surcharge_pct: 100,
+      holiday_surcharge_pct: 100,
+      extra_threshold_minutes: 15,
+      rounding_block_minutes: 30,
+      currency: 'NIO',
+      multi_entry_enabled: false,
+    }
+
+    const result = generatePeriodDays(
+      entries,
+      '2026-07-18',
+      '2026-07-20',
+      'fulltime',
+      180,
+      policy,
+      holidays,
+    )
+
+    const holidayDay = result.find((d) => d.date === '2026-07-19')
+    expect(holidayDay?.is_holiday).toBe(true)
+    expect(holidayDay?.holiday_name).toBe('Revolución Sandinista')
+    expect(holidayDay?.holiday_hours).toBeCloseTo(9, 2)
+    expect(holidayDay?.holiday_surcharge).toBeCloseTo(9, 2)
+    // El 19/07/2026 es domingo, pero el festivo prevalece.
+    expect(holidayDay?.sunday_surcharge).toBe(0)
+
+    // Los días sin registro no se marcan como feriado.
+    const offDay = result.find((d) => d.date === '2026-07-20')
+    expect(offDay?.is_holiday).toBe(false)
+  })
 })
 
 // ── format helpers ────────────────────────────────────────────
@@ -476,6 +518,38 @@ describe('calcDay with surcharges', () => {
     expect(result.holiday_name).toBe('Revolución Sandinista')
     // Holiday surcharge: 9h * 100% = 9h
     expect(result.holiday_surcharge).toBeCloseTo(9, 2)
+  })
+
+  it('gives precedence to the holiday over the Sunday surcharge', () => {
+    // 2026-07-19 (Revolución Sandinista) es domingo: el festivo se paga al
+    // doble una sola vez, no al cuádruple.
+    const holidayEntry: TimeEntry = {
+      ...baseEntry,
+      date: '2026-07-19',
+      start_time: '08:00',
+      end_time: '17:00',
+    }
+    const result = calcDay(holidayEntry, 'fulltime', 180, niPolicy, holidays)
+    expect(result.is_sunday).toBe(true)
+    expect(result.is_holiday).toBe(true)
+    expect(result.sunday_surcharge).toBe(0)
+    expect(result.holiday_surcharge).toBeCloseTo(9, 2)
+    // Las horas del domingo se siguen reportando, aunque no se recarguen.
+    expect(result.sunday_hours).toBeCloseTo(9, 2)
+  })
+
+  it('marks the holiday even without a policy config', () => {
+    const holidayEntry: TimeEntry = {
+      ...baseEntry,
+      date: '2026-07-19',
+      start_time: '08:00',
+      end_time: '17:00',
+    }
+    const result = calcDay(holidayEntry, 'fulltime', 180, undefined, holidays)
+    expect(result.is_holiday).toBe(true)
+    expect(result.holiday_hours).toBeCloseTo(9, 2)
+    // Sin política no hay recargo calculable.
+    expect(result.holiday_surcharge).toBe(0)
   })
 
   it('works without policy config (backward compat)', () => {

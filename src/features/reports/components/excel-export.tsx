@@ -5,7 +5,6 @@ import { FileDown } from "lucide-react";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
-  calcExtraTime,
   calcScheduledEndTime,
   formatTime,
 } from "@/lib/calculations";
@@ -15,6 +14,7 @@ import {
   formatPeriodDate,
   loadImageDataUrl,
 } from "../export-utils";
+import { extrasLabel, motivoDay } from "../holiday-rows";
 import type { DayCalculation, Period, Profile } from "@/types";
 
 interface Props {
@@ -143,11 +143,9 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
 
     let rowNum = 9;
     let totalExtraMinutes = 0;
-    let feriadoMinutes = 0;
 
     for (const day of days) {
       const isOff = day.concept === "Off";
-      const isFeriado = day.concept === "Feriado Nacional";
 
       if (isOff) {
         const row = sheet.getRow(rowNum);
@@ -164,32 +162,18 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
         continue;
       }
 
-      if (isFeriado) {
-        const row = sheet.getRow(rowNum);
-        row.getCell(1).value = formatDayMonth(day.date);
-        row.getCell(1).alignment = { horizontal: "center" };
-        row.getCell(2).value = formatTime(day.start_time);
-        row.getCell(2).alignment = { horizontal: "center" };
-        sheet.mergeCells(rowNum, 3, rowNum, 8);
-        row.getCell(3).value = "Feriado Nacional";
-        row.getCell(3).alignment = { horizontal: "center" };
-        row.getCell(3).border = TABLE_BORDER;
-        feriadoMinutes += day.hours * 60;
-        rowNum++;
-        continue;
-      }
-
       // Normal working day
       const row = sheet.getRow(rowNum);
       const scheduledEnd = calcScheduledEndTime(day.start_time, profile.type);
-      const extraTime = calcExtraTime(scheduledEnd, day.end_time);
+      // En un feriado la columna EXTRAS ya incluye el recargo (pago doble).
+      const extraTime = extrasLabel(day, scheduledEnd);
 
       row.getCell(1).value = formatDayMonth(day.date);
       row.getCell(2).value = formatTime(day.start_time);
       row.getCell(3).value = scheduledEnd;
       row.getCell(4).value = formatTime(day.end_time);
       row.getCell(5).value = extraTime;
-      row.getCell(6).value = day.concept || "-";
+      row.getCell(6).value = motivoDay(day);
       row.getCell(7).value = ""; // FIRMA SUPERVISOR — se llena a mano
       row.getCell(8).value = day.viatico ? 1 : "";
       row.getCell(4).fill = REAL_EXIT_FILL;
@@ -210,8 +194,7 @@ export function ExcelExport({ days, period, profile, fileName }: Props) {
     // ── Totals section ──────────────────────────────────────
     rowNum++; // blank row before totals
 
-    const totalAllExtraMinutes = totalExtraMinutes + feriadoMinutes;
-    const totalExtraHours = totalAllExtraMinutes / 60;
+    const totalExtraHours = totalExtraMinutes / 60;
     const totalHoursLabel = Number.isInteger(totalExtraHours)
       ? String(totalExtraHours)
       : totalExtraHours.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");

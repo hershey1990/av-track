@@ -14,6 +14,7 @@ import {
   CalendarDays,
   Repeat,
   CalendarRange,
+  PartyPopper,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -67,6 +68,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Ausencias', icon: CalendarDays, to: '/absences' },
       { label: 'Cambios de turno', icon: Repeat, to: '/shift-swaps' },
+      { label: 'Feriados', icon: PartyPopper, to: '/holidays' },
       { label: 'Proyectos', icon: Folder },
       { label: 'Clientes', icon: Briefcase },
       { label: 'Equipo', icon: Users },

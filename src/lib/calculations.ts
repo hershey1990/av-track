@@ -179,6 +179,23 @@ export function generatePeriodDays(
   return days
 }
 
+/**
+ * Calcula un día completo: horas, extras, viático y recargos legales.
+ *
+ * Los recargos vienen de la `policy` del país:
+ *  - nocturno: `night_surcharge_pct` sobre las horas dentro de la ventana
+ *    nocturna,
+ *  - dominical: `sunday_surcharge_pct` sobre todas las horas del domingo,
+ *  - feriado: `holiday_surcharge_pct` sobre todas las horas del festivo
+ *    (con 100% las horas se pagan al doble).
+ *
+ * Cuando un festivo cae en domingo prevalece el recargo de feriado: el día
+ * se paga al doble una sola vez, no al cuádruple.
+ *
+ * Sin `policy` la función se comporta como antes (todo regular, sin
+ * recargos), pero `holidays` sigue funcionando: marca `is_holiday` y deja
+ * `holiday_hours` con las horas del festivo.
+ */
 export function calcDay(
   entry: TimeEntry,
   type: EmploymentType,
@@ -216,9 +233,10 @@ export function calcDay(
     if (nightHours > 0) {
       nightSurcharge = Math.round(nightHours * (policy.night_surcharge_pct / 100) * 100) / 100
     }
-    if (sunday) {
+    if (sunday && !holiday) {
       sundaySurcharge = Math.round(hours * (policy.sunday_surcharge_pct / 100) * 100) / 100
-      // If also night hours, apply both surcharges
+      // Si también hay horas nocturnas, se aplican ambos recargos.
+      // Si el día es feriado, prevalece el recargo de feriado (no se duplica).
     }
     if (holiday) {
       holidaySurcharge = Math.round(hours * (policy.holiday_surcharge_pct / 100) * 100) / 100

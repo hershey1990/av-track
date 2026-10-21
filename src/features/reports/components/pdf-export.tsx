@@ -5,7 +5,6 @@ import { FileDown } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable, { type CellInput } from "jspdf-autotable";
 import {
-  calcExtraTime,
   calcScheduledEndTime,
   formatTime,
 } from "@/lib/calculations";
@@ -15,6 +14,7 @@ import {
   formatPeriodDate,
   loadImageDataUrl,
 } from "../export-utils";
+import { extrasLabel, motivoDay } from "../holiday-rows";
 import type { DayCalculation, Period, Profile } from "@/types";
 
 interface Props {
@@ -116,11 +116,9 @@ export function PdfExport({ days, period, profile }: Props) {
 
     const rows: CellInput[][] = [];
     let totalExtraMinutes = 0;
-    let feriadoMinutes = 0;
 
     for (const day of days) {
       const isOff = day.concept === "Off";
-      const isFeriado = day.concept === "Feriado Nacional";
 
       if (isOff) {
         rows.push([
@@ -136,25 +134,16 @@ export function PdfExport({ days, period, profile }: Props) {
         continue;
       }
 
-      if (isFeriado) {
-        rows.push([
-          formatDayMonth(day.date),
-          formatTime(day.start_time),
-          { content: "Feriado Nacional", colSpan: 6 },
-        ]);
-        feriadoMinutes += day.hours * 60;
-        continue;
-      }
-
       const scheduledEnd = calcScheduledEndTime(day.start_time, profile.type);
-      const extraTime = calcExtraTime(scheduledEnd, day.end_time);
+      // En un feriado la columna EXTRAS ya incluye el recargo (pago doble).
+      const extraTime = extrasLabel(day, scheduledEnd);
       rows.push([
         formatDayMonth(day.date),
         formatTime(day.start_time),
         scheduledEnd,
         formatTime(day.end_time),
         extraTime,
-        day.concept || "-",
+        motivoDay(day),
         "",
         day.viatico ? 1 : "",
       ]);
@@ -207,8 +196,7 @@ export function PdfExport({ days, period, profile }: Props) {
       (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable
         .finalY + 8;
 
-    const totalAllExtraMinutes = totalExtraMinutes + feriadoMinutes;
-    const totalExtraHours = totalAllExtraMinutes / 60;
+    const totalExtraHours = totalExtraMinutes / 60;
     const totalHoursLabel = Number.isInteger(totalExtraHours)
       ? String(totalExtraHours)
       : totalExtraHours.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");

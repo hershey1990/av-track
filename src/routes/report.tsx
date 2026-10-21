@@ -6,6 +6,8 @@ import { Pencil, Trash2, CalendarX2 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-profile";
 import { usePeriods } from "@/features/reports/hooks/use-periods";
+import { usePolicyConfig } from "@/features/admin/hooks/use-policy-config";
+import { useHolidays } from "@/features/holidays/hooks/use-holidays";
 import {
   usePeriodEntries,
   useDeleteEntry,
@@ -17,6 +19,7 @@ import { PdfExport } from "@/features/reports/components/pdf-export";
 import { ApprovalPanel } from "@/features/reports/components/approval-panel";
 import { ReportToolbar } from "@/features/reports/components/report-toolbar";
 import { ReportKpiRow } from "@/features/reports/components/report-kpi-row";
+import { ReportSurcharges } from "@/features/reports/components/report-surcharges";
 import { HoursByDayChart } from "@/features/reports/components/hours-by-day-chart";
 import { ConceptBreakdownChart } from "@/features/reports/components/concept-breakdown-chart";
 import { ReportBreakdownTable } from "@/features/reports/components/report-breakdown-table";
@@ -53,8 +56,11 @@ export default function ReportPage() {
   const { user } = useUser();
   const { data: profile } = useProfile(user?.id);
   const { data: periodsData } = usePeriods();
+  const { data: policy } = usePolicyConfig();
+  const { data: holidaysData } = useHolidays();
 
   const periods = useMemo(() => periodsData ?? [], [periodsData]);
+  const holidays = useMemo(() => holidaysData ?? [], [holidaysData]);
 
   // Por defecto se abre el período más reciente (el activo). El usuario puede
   // cambiarlo con el selector o con las flechas de la barra de herramientas.
@@ -74,6 +80,8 @@ export default function ReportPage() {
   );
 
   // Días completos del período (incluye los días "Off" sin registros).
+  // La política del país y los feriados activan los recargos legales
+  // (nocturno, dominical y de feriado).
   const periodDays = useMemo(
     () =>
       entries && selectedPeriod && profile
@@ -83,9 +91,11 @@ export default function ReportPage() {
             selectedPeriod.end_date,
             profile.type,
             profile.viatico,
+            policy ?? undefined,
+            holidays,
           )
         : null,
-    [entries, selectedPeriod, profile],
+    [entries, selectedPeriod, profile, policy, holidays],
   );
 
   /** Conceptos presentes en el período (para el filtro de la barra). */
@@ -294,6 +304,10 @@ export default function ReportPage() {
               <ReportKpiRow kpis={kpis} hasData={kpis.workingDays > 0} />
             )}
 
+            {filteredDays && (
+              <ReportSurcharges days={filteredDays} policy={policy ?? null} />
+            )}
+
             <div className="grid gap-6 xl:grid-cols-2">
               <HoursByDayChart data={daily} />
               <ConceptBreakdownChart data={breakdown} />
@@ -321,6 +335,8 @@ export default function ReportPage() {
                   entries={entries}
                   type={profile.type}
                   viaticoRate={profile.viatico}
+                  policy={policy ?? undefined}
+                  holidays={holidays}
                   renderActions={renderActions}
                 />
 

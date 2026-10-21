@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 export default function AdminPolicyPage() {
   const { user } = useUser()
   const { data: profile, isLoading } = useProfile(user?.id)
-  const { data: policy, isLoading: policyLoading } = usePolicyConfig()
+  const { data: policy, isPending: policyLoading } = usePolicyConfig()
   const updatePolicy = useUpdatePolicyConfig()
 
   if (isLoading || policyLoading) {
