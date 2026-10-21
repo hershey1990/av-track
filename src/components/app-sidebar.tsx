@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { SmoothScrollArea } from "@/components/smooth-scroll-area";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { signOut } from "@/features/auth/api";
 import { useProfile } from "@/hooks/use-profile";
@@ -46,9 +47,11 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       {/* Menú */}
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-        <SidebarNav isAdmin={isAdmin} onNavigate={onNavigate} />
-      </div>
+      <SmoothScrollArea className="min-h-0 flex-1">
+        <div className="pb-4">
+          <SidebarNav isAdmin={isAdmin} onNavigate={onNavigate} />
+        </div>
+      </SmoothScrollArea>
 
       {/* Usuario */}
       <div className="shrink-0 border-t border-sidebar-border p-3">
