@@ -11,6 +11,7 @@ import type {
   TimeEntry,
   PolicyConfig,
   Holiday,
+  Absence,
 } from '@/types'
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -123,7 +124,8 @@ export function generatePeriodDays(
   type: EmploymentType,
   viaticoRate: number,
   policy?: PolicyConfig,
-  holidays?: Holiday[]
+  holidays?: Holiday[],
+  absences?: Absence[],
 ): DayCalculation[] {
   // Group entries by date
   const entryGroups = new Map<string, TimeEntry[]>()
@@ -140,7 +142,14 @@ export function generatePeriodDays(
   while (current <= end) {
     const dateStr = format(current, 'yyyy-MM-dd')
     const dateEntries = entryGroups.get(dateStr)
+    const vacation = absences?.some((a) =>
+      a.type === 'vacation' && a.status === 'approved' &&
+      a.start_date <= dateStr && a.end_date >= dateStr,
+    )
 
+    if (vacation && dateEntries?.length) {
+      throw new Error(`Hay registros de trabajo y vacaciones aprobadas el ${dateStr}. Revisá los datos antes de generar el reporte.`)
+    }
     if (dateEntries) {
       // One DayCalculation per entry group (sorted by slot_index)
       dateEntries
@@ -154,8 +163,9 @@ export function generatePeriodDays(
         start_time: 'Off',
         scheduled_end_time: 'Off',
         end_time: 'Off',
-        concept: 'Off',
+        concept: vacation ? 'Vacaciones' : 'Off',
         hours: 0,
+        vacation_hours: vacation ? getStandardHours(type) : 0,
         standard_hours: getStandardHours(type),
         extra_hours: 0,
         extra_time: 'Off',

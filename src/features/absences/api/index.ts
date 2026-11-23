@@ -56,6 +56,20 @@ export async function updateAbsenceStatus(
 
 export async function deleteAbsence(id: string): Promise<void> {
   const supabase = getSupabase()
-  const { error } = await supabase.from('absences').delete().eq('id', id)
+  const { error } = await supabase.from('absences').delete().eq('id', id).select('id').single()
   if (error) throw error
+}
+
+export async function saveVacation(
+  userId: string,
+  values: { start_date: string; end_date: string; status: 'pending' | 'approved' },
+  id?: string,
+): Promise<Absence> {
+  const supabase = getSupabase()
+  const query = id
+    ? supabase.from('absences').update({ ...values, updated_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId).eq('type', 'vacation')
+    : supabase.from('absences').insert({ ...values, user_id: userId, type: 'vacation' })
+  const { data, error } = await query.select().single()
+  if (error) throw error
+  return data
 }

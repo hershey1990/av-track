@@ -84,7 +84,7 @@ export function PeriodSummaryDayRow({
             hasExtra ? "text-chart-1" : "text-chart-2",
           )}
         >
-          {hasExtra ? "Horas extra" : "Regular"}
+          {day.vacation_hours ? "Vacaciones pagadas" : hasExtra ? "Horas extra" : "Regular"}
         </span>
       </span>
 
@@ -100,12 +100,12 @@ export function PeriodSummaryDayRow({
 
       {/* Rango horario */}
       <span className="hidden shrink-0 font-mono text-[13px] tabular-nums text-foreground sm:inline">
-        {formatTime(day.start_time)} - {formatTime(day.end_time)}
+        {day.vacation_hours ? "—" : `${formatTime(day.start_time)} - ${formatTime(day.end_time)}`}
       </span>
 
       {/* Duración */}
       <span className="w-[68px] shrink-0 text-right font-mono text-[13px] font-semibold tabular-nums text-foreground">
-        {formatDurationHMS(day.hours * 3600)}
+        {formatDurationHMS((day.vacation_hours ?? day.hours) * 3600)}
       </span>
 
       {/* Acciones */}

@@ -62,7 +62,7 @@ export function DashboardKpiCards({ userId, profileType, viaticoRate, periodTota
       icon: CalendarDays,
       label: 'Total período',
       value: periodTotalHours !== undefined ? `${periodTotalHours.toFixed(1)}h` : '—',
-      sub: 'Período activo',
+      sub: 'Trabajadas + vacaciones',
       color: 'bg-chart-5/12 text-chart-5',
     },
     {

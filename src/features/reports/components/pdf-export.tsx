@@ -13,6 +13,7 @@ import {
   formatDayMonth,
   formatPeriodDate,
   loadImageDataUrl,
+  vacationExportRow,
 } from "../export-utils";
 import { extrasLabel, motivoDay } from "../holiday-rows";
 import type { DayCalculation, Period, Profile } from "@/types";
@@ -118,6 +119,10 @@ export function PdfExport({ days, period, profile }: Props) {
     let totalExtraMinutes = 0;
 
     for (const day of days) {
+      if (day.vacation_hours) {
+        rows.push(vacationExportRow(day.date, day.vacation_hours));
+        continue;
+      }
       const isOff = day.concept === "Off";
 
       if (isOff) {

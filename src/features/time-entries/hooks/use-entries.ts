@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TimeEntryFormData } from '../schemas'
 import * as api from '../api'
+import type { TimerSegment } from './use-running-timer'
 
 export function useEntries(userId: string | undefined, from?: string, to?: string) {
   return useQuery({
@@ -28,6 +29,15 @@ export function useCreateEntry() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['time-entries'] })
     },
+  })
+}
+
+export function useSaveTimerSegments() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ segments, concept }: { segments: TimerSegment[]; concept: string }) =>
+      api.saveTimerSegments(segments, concept),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['time-entries'] }),
   })
 }
 

@@ -139,6 +139,7 @@ export function BreakdownExcelExport({
     detail.getColumn(4).width = 12;
     detail.getColumn(5).width = 12;
     detail.getColumn(6).width = 12;
+    detail.getColumn(7).width = 24;
 
     const detailHeader = detail.getRow(1);
     const detailHeaders = [
@@ -148,6 +149,7 @@ export function BreakdownExcelExport({
       "HORAS EXTRA",
       "VIATICO",
       "REGISTROS",
+      "VACACIONES PAGADAS",
     ];
     detailHeaders.forEach((header, index) => {
       const cell = detailHeader.getCell(index + 1);
@@ -166,10 +168,11 @@ export function BreakdownExcelExport({
       excelRow.getCell(4).value = day.extraHours;
       excelRow.getCell(5).value = day.viatico;
       excelRow.getCell(6).value = day.entryCount;
+      excelRow.getCell(7).value = day.vacationHours || "";
       excelRow.eachCell((cell) => {
         cell.border = TABLE_BORDER;
       });
-      [1, 2, 3, 4, 5, 6].forEach((column) => {
+      [1, 2, 3, 4, 5, 6, 7].forEach((column) => {
         excelRow.getCell(column).alignment = { horizontal: "center" };
       });
     });

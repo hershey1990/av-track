@@ -30,12 +30,15 @@ import { useProfile } from "@/hooks/use-profile";
 import { useUser } from "@/hooks/use-user";
 import { formatDurationHMS } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
+import { getTodayNicaragua } from "@/lib/timezone";
+import { useAbsences } from "@/features/absences/hooks/use-absences";
 
 const MODE_STORAGE_KEY = "bb-tracker-mode";
 
 export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { user } = useUser();
   const { data: profile } = useProfile(user?.id);
+  const { refetch: refreshAbsences } = useAbsences(user?.id);
 
   const { isRunning, elapsed, concept, setConcept, start, stop, isSaving } =
     useRunningTimerContext();
@@ -87,6 +90,16 @@ export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
       return;
     }
 
+    const result = await refreshAbsences();
+    if (result.isError || !result.data) {
+      toast.error("No se pudieron comprobar las vacaciones antes de iniciar el temporizador.");
+      return;
+    }
+    const today = getTodayNicaragua();
+    if (result.data.some((a) => a.type === "vacation" && a.status === "approved" && a.start_date <= today && a.end_date >= today)) {
+      toast.error("No se pueden registrar horas durante vacaciones aprobadas.");
+      return;
+    }
     start();
   };
 

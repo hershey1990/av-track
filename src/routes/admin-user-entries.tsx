@@ -17,30 +17,40 @@ import {
 } from "@/components/ui/select";
 import { formatDateFull } from "@/lib/timezone";
 import { generatePeriodDays } from "@/lib/calculations";
+import { useAbsences } from "@/features/absences/hooks/use-absences";
 
 export default function UserEntriesPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useUser();
   const { data: currentProfile, isLoading } = useProfile(user?.id);
   const { data: targetProfile } = useProfile(id);
+  const { data: absences, isError: absencesError } = useAbsences(id);
   const { data: periods } = usePeriods();
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   const { data: entries } = usePeriodEntries(id, selectedPeriodId ?? undefined);
   const selectedPeriod = periods?.find((p) => p.id === selectedPeriodId);
 
-  const allPeriodDays = useMemo(
-    () =>
-      entries && selectedPeriod && targetProfile
-        ? generatePeriodDays(
+  const periodResult = useMemo(
+    () => {
+      if (!entries || !selectedPeriod || !targetProfile || !absences || absencesError) return null;
+      try {
+        return { days: generatePeriodDays(
             entries,
             selectedPeriod.start_date,
             selectedPeriod.end_date,
             targetProfile.type,
             targetProfile.viatico,
-          )
-        : null,
-    [entries, selectedPeriod, targetProfile],
+            undefined,
+            undefined,
+            absences,
+          ), error: null };
+      } catch (error) {
+        return { days: null, error: error instanceof Error ? error.message : "No se pudo calcular el período." };
+      }
+    },
+    [entries, selectedPeriod, targetProfile, absences, absencesError],
   );
+  const allPeriodDays = periodResult?.days;
 
   if (isLoading)
     return (
@@ -59,6 +69,8 @@ export default function UserEntriesPage() {
       <h1 className="text-2xl font-semibold tracking-tight">
         Entradas de {targetProfile?.full_name ?? "..."}
       </h1>
+      {(absencesError || periodResult?.error) && <p role="alert" className="text-destructive">{periodResult?.error ?? "No se pudieron cargar las vacaciones."}</p>}
+      {allPeriodDays && <p className="text-sm text-muted-foreground">Vacaciones pagadas: {allPeriodDays.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0).toFixed(2)}h</p>}
 
       <Card>
         <CardHeader>
@@ -118,7 +130,7 @@ export default function UserEntriesPage() {
             <p className="p-4 text-muted-foreground">
               Seleccioná un período para ver y exportar registros
             </p>
-          ) : entries && entries.length > 0 ? (
+          ) : allPeriodDays && entries && (entries.length > 0 || allPeriodDays.some((day) => day.vacation_hours)) ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b bg-muted/50">
@@ -140,12 +152,18 @@ export default function UserEntriesPage() {
                       profileType={targetProfile?.type}
                     />
                   ))}
+                  {allPeriodDays.filter((day) => day.vacation_hours).map((day) => (
+                    <tr key={`vacation-${day.date}`} className="border-b">
+                      <td className="p-2">{formatDateFull(day.date)}</td><td className="p-2">—</td><td className="p-2">—</td>
+                      <td className="p-2">{day.vacation_hours}h</td><td className="p-2">Vacaciones pagadas</td><td className="p-2">—</td><td />
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          ) : (
+          ) : allPeriodDays ? (
             <p className="p-4 text-muted-foreground">Sin registros</p>
-          )}
+          ) : null}
         </CardContent>
       </Card>
     </div>

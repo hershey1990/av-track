@@ -15,6 +15,7 @@ import {
   Repeat,
   CalendarRange,
   PartyPopper,
+  Palmtree,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -67,6 +68,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: 'MANAGE',
     items: [
       { label: 'Ausencias', icon: CalendarDays, to: '/absences' },
+      { label: 'Vacaciones', icon: Palmtree, to: '/vacations' },
       { label: 'Cambios de turno', icon: Repeat, to: '/shift-swaps' },
       { label: 'Feriados', icon: PartyPopper, to: '/holidays' },
       { label: 'Proyectos', icon: Folder },

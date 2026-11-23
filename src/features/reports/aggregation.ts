@@ -29,6 +29,7 @@ export interface DailySeriesPoint {
   extraHours: number;
   /** standardHours + extraHours */
   totalHours: number;
+  vacationHours: number;
   /** Monto de viático del día. */
   viatico: number;
   /** Número de registros que componen el día. */
@@ -125,6 +126,7 @@ export function buildDailySeries(
         standardHours: round2(totalHours - extraHours),
         extraHours,
         totalHours,
+        vacationHours: round2(dayList.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0)),
         viatico: dayList.reduce((sum, day) => sum + day.viatico_amount, 0),
         // Los días sin registro se generan como "Off" y no son entradas reales.
         entryCount: dayList.filter((day) => day.entry_id).length,

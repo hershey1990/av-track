@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { usePeriods } from "@/features/reports/hooks/use-periods";
 import { usePolicyConfig } from "@/features/admin/hooks/use-policy-config";
 import { useHolidays } from "@/features/holidays/hooks/use-holidays";
+import { useAbsences } from "@/features/absences/hooks/use-absences";
 import {
   usePeriodEntries,
   useDeleteEntry,
@@ -58,6 +59,7 @@ export default function ReportPage() {
   const { data: periodsData } = usePeriods();
   const { data: policy } = usePolicyConfig();
   const { data: holidaysData } = useHolidays();
+  const { data: absences, isError: absencesError } = useAbsences(user?.id);
 
   const periods = useMemo(() => periodsData ?? [], [periodsData]);
   const holidays = useMemo(() => holidaysData ?? [], [holidaysData]);
@@ -82,10 +84,11 @@ export default function ReportPage() {
   // Días completos del período (incluye los días "Off" sin registros).
   // La política del país y los feriados activan los recargos legales
   // (nocturno, dominical y de feriado).
-  const periodDays = useMemo(
-    () =>
-      entries && selectedPeriod && profile
-        ? generatePeriodDays(
+  const periodResult = useMemo(
+    () => {
+      if (!entries || !selectedPeriod || !profile || !absences || absencesError) return null;
+      try {
+        return { days: generatePeriodDays(
             entries,
             selectedPeriod.start_date,
             selectedPeriod.end_date,
@@ -93,16 +96,21 @@ export default function ReportPage() {
             profile.viatico,
             policy ?? undefined,
             holidays,
-          )
-        : null,
-    [entries, selectedPeriod, profile, policy, holidays],
+            absences,
+          ), error: null };
+      } catch (error) {
+        return { days: null, error: error instanceof Error ? error.message : "No se pudo calcular el período." };
+      }
+    },
+    [entries, selectedPeriod, profile, policy, holidays, absences, absencesError],
   );
+  const periodDays = periodResult?.days;
 
   /** Conceptos presentes en el período (para el filtro de la barra). */
   const concepts = useMemo(() => {
     const set = new Set<string>();
     for (const day of periodDays ?? []) {
-      if (day.hours > 0) set.add(day.concept || "Sin concepto");
+      if (day.hours > 0 || day.vacation_hours) set.add(day.concept || "Sin concepto");
     }
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [periodDays]);
@@ -115,7 +123,7 @@ export default function ReportPage() {
         const label = day.concept || "Sin concepto";
         if (label !== conceptFilter) return false;
       }
-      if (hideEmptyDays && day.hours <= 0) return false;
+      if (hideEmptyDays && day.hours <= 0 && !day.vacation_hours) return false;
       return true;
     });
   }, [periodDays, conceptFilter, hideEmptyDays]);
@@ -206,6 +214,11 @@ export default function ReportPage() {
       {/* Encabezado + pestañas */}
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold tracking-tight">Reportes</h1>
+        {(absencesError || periodResult?.error) && (
+          <p role="alert" className="text-sm text-destructive">
+            {periodResult?.error ?? "No se pudieron cargar las vacaciones; no se puede generar el reporte."}
+          </p>
+        )}
 
         <TabsRoot
           value={tab}
@@ -303,6 +316,12 @@ export default function ReportPage() {
             {kpis && (
               <ReportKpiRow kpis={kpis} hasData={kpis.workingDays > 0} />
             )}
+            {filteredDays && (
+              <Card><CardContent className="pt-4 text-sm">
+                Horas pagadas por vacaciones: <strong>{filteredDays.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0).toFixed(2)}h</strong>
+                {" · "}Total trabajado y vacaciones: <strong>{((kpis?.totalHours ?? 0) + filteredDays.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0)).toFixed(2)}h</strong>
+              </CardContent></Card>
+            )}
 
             {filteredDays && (
               <ReportSurcharges days={filteredDays} policy={policy ?? null} />
@@ -325,7 +344,7 @@ export default function ReportPage() {
 
           {/* ── Pestaña: Registros ────────────────────────── */}
           <TabsPanel value={TABS.entries} className="space-y-6">
-            {entries && profile && selectedPeriod ? (
+            {entries && profile && selectedPeriod && periodDays ? (
               <>
                 <h2 className="text-[15px] font-semibold text-foreground">
                   {selectedPeriod.name}
@@ -337,16 +356,17 @@ export default function ReportPage() {
                   viaticoRate={profile.viatico}
                   policy={policy ?? undefined}
                   holidays={holidays}
+                  periodDays={periodDays}
                   renderActions={renderActions}
                 />
 
                 <ApprovalPanel period={selectedPeriod} />
               </>
-            ) : (
+            ) : !absencesError && !periodResult?.error ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
                 Cargando...
               </p>
-            )}
+            ) : null}
           </TabsPanel>
         </TabsRoot>
       </div>

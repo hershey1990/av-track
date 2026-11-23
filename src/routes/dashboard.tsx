@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { usePeriods } from "@/features/reports/hooks/use-periods";
 import { usePolicyConfig } from "@/features/admin/hooks/use-policy-config";
 import { useHolidays } from "@/features/holidays/hooks/use-holidays";
+import { useAbsences } from "@/features/absences/hooks/use-absences";
 import {
   usePeriodEntries,
   useEntries,
@@ -15,7 +16,7 @@ import { TimelineChart } from "@/features/time-entries/components/timeline-chart
 import { EntriesList } from "@/features/time-entries/components/entries-list";
 import { ViewSwitch } from "@/features/time-entries/components/calendar/view-switch";
 import { PeriodSummarySections } from "@/features/reports/components/period-summary-sections";
-import { calcPeriodSummary } from "@/lib/calculations";
+import { calcPeriodSummary, generatePeriodDays } from "@/lib/calculations";
 import {
   formatDayMonthShort,
   getTodayNicaragua,
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const { data: periods } = usePeriods();
   const { data: policy } = usePolicyConfig();
   const { data: holidaysData } = useHolidays();
+  const { data: absences, isError: absencesError } = useAbsences(user?.id);
   const activePeriod = periods?.[0];
   const { data: entries } = usePeriodEntries(user?.id, activePeriod?.id);
 
@@ -58,6 +60,15 @@ export default function DashboardPage() {
         : null,
     [entries, profile, policy, holidays],
   );
+  const periodResult = useMemo(() => {
+    if (!activePeriod || !entries || !profile || !absences || absencesError) return null;
+    try {
+      return { days: generatePeriodDays(entries, activePeriod.start_date, activePeriod.end_date, profile.type, profile.viatico, policy ?? undefined, holidays, absences), error: null };
+    } catch (error) {
+      return { days: null, error: error instanceof Error ? error.message : "No se pudo calcular el período." };
+    }
+  }, [activePeriod, entries, profile, absences, absencesError, policy, holidays]);
+  const vacationHours = periodResult?.days?.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0);
 
   if (!user) return null;
 
@@ -79,12 +90,13 @@ export default function DashboardPage() {
 
       {profile && (
         <>
+          {(absencesError || periodResult?.error) && <p role="alert" className="text-sm text-destructive">{periodResult?.error ?? "No se pudieron cargar las vacaciones del período."}</p>}
           {/* KPIs */}
           <DashboardKpiCards
             userId={user.id}
             profileType={profile.type}
             viaticoRate={profile.viatico}
-            periodTotalHours={summary?.total_hours}
+            periodTotalHours={summary && vacationHours !== undefined ? summary.total_hours + vacationHours : undefined}
             periodTotalExtraHours={summary?.total_extra_hours}
           />
 
@@ -109,13 +121,14 @@ export default function DashboardPage() {
           <div className="border-t border-border" />
 
           {/* Resumen del período */}
-          {activePeriod && entries && (
+          {activePeriod && entries && periodResult?.days && (
             <PeriodSummarySections
               entries={entries}
               type={profile.type}
               viaticoRate={profile.viatico}
               policy={policy ?? undefined}
               holidays={holidays}
+              periodDays={periodResult.days}
             />
           )}
         </>

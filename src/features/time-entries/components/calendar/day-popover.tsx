@@ -19,6 +19,7 @@ interface Props {
   date: string;
   /** Entradas registradas en ese día. */
   entries: TimeEntry[];
+  isVacation?: boolean;
 }
 
 /**
@@ -32,6 +33,7 @@ export function DayPopoverContent({
   profileType,
   date,
   entries,
+  isVacation = false,
 }: Props) {
   const deleteEntry = useDeleteEntry();
   const [editing, setEditing] = useState<TimeEntry | null>(null);
@@ -107,12 +109,12 @@ export function DayPopoverContent({
 
       {entries.length > 0 && <Separator />}
 
-      <div>
+      {isVacation ? <p className="text-sm text-muted-foreground">Vacaciones aprobadas: no se pueden registrar horas en este día.</p> : <div>
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {entries.length > 0 ? "Agregar otro registro" : "Nuevo registro"}
         </p>
         <DayEntryForm userId={userId} profileType={profileType} date={date} />
-      </div>
+      </div>}
 
       {editing && (
         <EntryEditDialog

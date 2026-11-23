@@ -6,7 +6,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import type { EmploymentType, TimeEntry } from "@/types";
+import type { Absence, EmploymentType, TimeEntry } from "@/types";
 
 export interface CalendarDayContextValue {
   /** Id del usuario propietario de las entradas. */
@@ -21,6 +21,7 @@ export interface CalendarDayContextValue {
   entriesByDate: Map<string, TimeEntry[]>;
   /** Días laborables del usuario (0 = domingo … 6 = sábado). */
   workingDays: number[];
+  vacations: Absence[];
   /**
    * `true` en pantallas de escritorio: el detalle se abre en un popover
    * anclado a la celda. En móvil se usa una hoja inferior.

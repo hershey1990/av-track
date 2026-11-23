@@ -4,6 +4,12 @@ import { getSupabase } from '@/lib/supabase/client'
 import { getTodayNicaragua } from '@/lib/timezone'
 import type { TimeEntry } from '@/types'
 import type { TimeEntryFormData } from '../schemas'
+import type { TimerSegment } from '../hooks/use-running-timer'
+
+export async function saveTimerSegments(segments: TimerSegment[], concept: string): Promise<void> {
+  const { error } = await getSupabase().rpc('save_timer_segments', { segments, entry_concept: concept })
+  if (error) throw error
+}
 
 export async function getEntries(userId: string, from?: string, to?: string): Promise<TimeEntry[]> {
   const supabase = getSupabase()

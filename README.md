@@ -36,6 +36,17 @@ Las migraciones viven en `supabase/migrations/` y se aplican en orden de versió
 
 - **No modificar migraciones ya aplicadas**: crear un fichero nuevo.
 - El historial vive en `supabase_migrations.schema_migrations` (`version` es PK).
+- La migración de vacaciones debe estar aplicada antes de desplegar esta versión:
+  también instala la función transaccional usada para guardar el temporizador.
+
+## Vacaciones
+
+Cada usuario puede registrar vacaciones como pendientes o aprobadas. Solo las
+aprobadas acreditan la jornada estándar por cada día calendario, incluidos
+descansos y feriados; estas horas no generan extras, viáticos ni recargos.
+No se permiten fechas de inicio anteriores a hoy en Nicaragua, períodos
+pendientes o aprobados superpuestos, ni registros de trabajo en vacaciones
+aprobadas. Los períodos se pueden editar o cancelar hasta el día de inicio.
 
 ## Despliegue
 

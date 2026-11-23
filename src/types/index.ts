@@ -51,6 +51,8 @@ export interface DayCalculation {
   /** Índice de ranura dentro del mismo día (1-based implícito) */
   slot_index?: number
   hours: number
+  /** Horas pagadas de vacaciones; no son horas trabajadas. */
+  vacation_hours?: number
   standard_hours: number
   extra_hours: number
   extra_time: string

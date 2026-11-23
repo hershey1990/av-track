@@ -48,6 +48,7 @@ export function CalendarDayButton({
     setOpenDate,
     entriesByDate,
     workingDays,
+    vacations,
     isDesktop,
   } = useCalendarDay();
 
@@ -60,8 +61,9 @@ export function CalendarDayButton({
   const isToday = Boolean(modifiers.today);
   const isOutside = Boolean(modifiers.outside);
   const weekday = getWeekdayIndex(date);
+  const isVacation = vacations.some((a) => a.start_date <= date && a.end_date >= date);
   const isWorkingDay =
-    workingDays.length === 0 || workingDays.includes(weekday);
+    !isVacation && (workingDays.length === 0 || workingDays.includes(weekday));
   const isOpen = openDate === date;
 
   // La librería mueve el foco al día "focused" mediante un efecto; replicamos
@@ -123,6 +125,7 @@ export function CalendarDayButton({
           +{formatHoursHM(summary.extraHours)} extra
         </span>
       )}
+      {isVacation && <span className="px-1.5 text-[10px] font-semibold text-primary">Vacaciones</span>}
 
       {entries.length > 0 && (
         <span className="flex w-full flex-col gap-0.5 px-1.5 pb-1.5">
@@ -195,6 +198,7 @@ export function CalendarDayButton({
             profileType={profileType}
             date={date}
             entries={entries}
+            isVacation={isVacation}
           />
         </PopoverContent>
       </Popover>

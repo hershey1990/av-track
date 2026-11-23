@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useEntries } from "../../hooks/use-entries";
+import { useAbsences } from "@/features/absences/hooks/use-absences";
 import { formatMonthYear, getTodayNicaragua } from "@/lib/timezone";
 import { CalendarDayProvider } from "./calendar-day-context";
 import { CalendarDayButton } from "./calendar-day-button";
@@ -80,6 +81,8 @@ export function CalendarView({ userId, profileType, workingDays }: Props) {
     rangeFrom,
     rangeTo,
   );
+  const { data: absences, isError: absencesError } = useAbsences(userId);
+  const vacations = useMemo(() => (absences ?? []).filter((a) => a.type === "vacation" && a.status === "approved"), [absences]);
 
   const entriesByDate = useMemo(() => groupByDate(entries), [entries]);
 
@@ -164,7 +167,10 @@ export function CalendarView({ userId, profileType, workingDays }: Props) {
         />
       </div>
 
+      {absencesError && <p role="alert" className="text-sm text-destructive">No se pudieron cargar las vacaciones.</p>}
+      {!absences && !absencesError && <p className="text-sm text-muted-foreground">Cargando vacaciones...</p>}
       {/* Grilla */}
+      {absences && !absencesError && (
       <CalendarDayProvider
         value={{
           userId,
@@ -173,6 +179,7 @@ export function CalendarView({ userId, profileType, workingDays }: Props) {
           setOpenDate,
           entriesByDate,
           workingDays,
+          vacations,
           isDesktop,
         }}
       >
@@ -212,6 +219,7 @@ export function CalendarView({ userId, profileType, workingDays }: Props) {
           </CardContent>
         </Card>
       </CalendarDayProvider>
+      )}
 
       {isLoading && (
         <p className="text-center text-xs text-muted-foreground">
@@ -239,6 +247,7 @@ export function CalendarView({ userId, profileType, workingDays }: Props) {
               profileType={profileType}
               date={openDate}
               entries={entriesByDate.get(openDate) ?? []}
+              isVacation={vacations.some((a) => a.start_date <= openDate && a.end_date >= openDate)}
             />
           </SheetContent>
         </Sheet>

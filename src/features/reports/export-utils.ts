@@ -25,6 +25,10 @@ export function formatDayMonth(dateStr: string): string {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+export function vacationExportRow(date: string, hours: number): string[] {
+  return [formatDayMonth(date), '-', '-', '-', '0:00', `Vacaciones pagadas (${hours} h)`, '', '']
+}
+
 /** Convierte "1:30" o "Off" en minutos. */
 export function extraTimeToMinutes(extraTime: string): number {
   if (extraTime === 'Off' || extraTime === '0:00') return 0

@@ -51,3 +51,15 @@ export function useDeleteAbsence() {
     },
   })
 }
+
+export function useSaveVacation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, values, id }: {
+      userId: string
+      values: { start_date: string; end_date: string; status: 'pending' | 'approved' }
+      id?: string
+    }) => api.saveVacation(userId, values, id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['absences'] }),
+  })
+}

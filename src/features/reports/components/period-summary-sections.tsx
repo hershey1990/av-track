@@ -35,6 +35,7 @@ interface Props {
   headerAction?: ReactNode;
   /** Acciones por fila (editar / borrar) */
   renderActions?: (day: DayCalculation) => ReactNode;
+  periodDays?: DayCalculation[];
 }
 
 /** Un día del período, con su mes para agrupar en secciones. */
@@ -59,10 +60,16 @@ export function PeriodSummarySections({
   emptyMessage = "Sin registros en este período",
   headerAction,
   renderActions,
+  periodDays,
 }: Props) {
   const summary = useMemo(
-    () => calcPeriodSummary(entries, type, viaticoRate, policy, holidays),
-    [entries, type, viaticoRate, policy, holidays],
+    () => {
+      const calculated = calcPeriodSummary(entries, type, viaticoRate, policy, holidays);
+      if (!periodDays) return calculated;
+      const vacationDays = periodDays.filter((day) => (day.vacation_hours ?? 0) > 0);
+      return { ...calculated, days: [...calculated.days, ...vacationDays].sort((a, b) => a.date.localeCompare(b.date)) };
+    },
+    [entries, type, viaticoRate, policy, holidays, periodDays],
   );
 
   const groups = useMemo<MonthGroup[]>(() => {
@@ -113,7 +120,7 @@ export function PeriodSummarySections({
         <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[15px] font-semibold tabular-nums text-foreground">
-            {formatDurationHMS(summary.total_hours * 3600)}
+            {formatDurationHMS((summary.total_hours + (periodDays?.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0) ?? 0)) * 3600)}
           </span>
           {headerAction ?? (
             <Button
@@ -149,6 +156,14 @@ export function PeriodSummarySections({
           </span>{" "}
           días con viático
         </span>
+        {periodDays && (
+          <span>
+            <span className="font-semibold tabular-nums text-foreground">
+              {formatHours(periodDays.reduce((sum, day) => sum + (day.vacation_hours ?? 0), 0))}h
+            </span>{" "}
+            pagadas por vacaciones
+          </span>
+        )}
       </div>
 
       {/* Secciones por mes */}
@@ -160,7 +175,7 @@ export function PeriodSummarySections({
             </span>
             <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
               {formatDurationHMS(
-                group.days.reduce((sum, day) => sum + day.hours, 0) * 3600,
+                group.days.reduce((sum, day) => sum + day.hours + (day.vacation_hours ?? 0), 0) * 3600,
               )}
             </span>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useCreateEntry } from './use-entries'
+import { useSaveTimerSegments } from './use-entries'
 import { getNicaraguaDateTime } from '@/lib/timezone'
 
 const STORAGE_KEY = 'bb-running-entry'
@@ -86,7 +86,7 @@ export function splitSegments(start: Date, end: Date): TimerSegment[] {
  * refresh or a crash never leaves a half-written row behind.
  */
 export function useRunningTimer(userId: string | undefined) {
-  const createEntry = useCreateEntry()
+  const saveSegments = useSaveTimerSegments()
   const [state, setState] = useState<RunningState>(() => readState())
   const [now, setNow] = useState(() => Date.now())
   const stateRef = useRef(state)
@@ -157,18 +157,13 @@ export function useRunningTimer(userId: string | undefined) {
     persist({ ...current, startedAt: null })
 
     try {
-      for (const segment of segments) {
-        await createEntry.mutateAsync({
-          userId,
-          values: { ...segment, concept, notes: '' },
-        })
-      }
+      await saveSegments.mutateAsync({ segments, concept })
       return segments
     } catch (error) {
       persist(current)
       throw error
     }
-  }, [createEntry, persist, userId])
+  }, [saveSegments, persist, userId])
 
   return {
     isRunning: state.startedAt !== null,
@@ -177,6 +172,6 @@ export function useRunningTimer(userId: string | undefined) {
     setConcept,
     start,
     stop,
-    isSaving: createEntry.isPending,
+    isSaving: saveSegments.isPending,
   }
 }
